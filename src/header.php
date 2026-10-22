@@ -73,6 +73,9 @@ $headerCompras = $headerBasePath . 'src/minhas-compras.php';
             >Sobre nós</a>
             <a href="<?= htmlspecialchars($headerContato, ENT_QUOTES, 'UTF-8') ?>">Contato</a>
             <a href="<?= htmlspecialchars($headerCarrinhoHref, ENT_QUOTES, 'UTF-8') ?>">Carrinho (<?= $headerQuantidadeCarrinho ?>)</a>
+            <?php if ($headerEmail !== null): ?>
+                <a href="<?= htmlspecialchars($headerCompras, ENT_QUOTES, 'UTF-8') ?>" <?= !empty($headerPaginaCompras) ? 'aria-current="page"' : '' ?>>Minhas compras</a>
+            <?php endif; ?>
         </nav>
 
         <div class="user-menu-right">
