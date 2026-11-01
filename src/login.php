@@ -56,10 +56,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $mensagem = "E-mail ou senha incorretos.";
+        } catch (RuntimeException $erro) {
+            error_log($erro->getMessage());
+            http_response_code(503);
+            $mensagem = 'Não foi possível preparar o banco para o acesso. Verifique as permissões e os logs do servidor.';
         } catch (PDOException $erro) {
             error_log($erro->getMessage());
             http_response_code(503);
-            $mensagem = "Não foi possível acessar o banco de dados. Inicie o MySQL no XAMPP e tente novamente.";
+            $mensagem = 'Não foi possível conectar ao banco de dados. Verifique a configuração do servidor e tente novamente.';
         }
     } else {
         $mensagem = "Preencha todos os campos.";

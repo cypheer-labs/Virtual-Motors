@@ -101,7 +101,20 @@ class Database
             }
 
             require_once __DIR__ . '/schemamigrationrunner.php';
-            SchemaMigrationRunner::run($connection);
+            try {
+                SchemaMigrationRunner::run($connection);
+            } catch (PDOException $exception) {
+                error_log('Falha ao aplicar migration do banco: ' . $exception->getMessage());
+                throw new \RuntimeException(
+                    'A conexão funcionou, mas não foi possível aplicar uma atualização necessária do banco.',
+                    0,
+                    $exception
+                );
+            } catch (\RuntimeException $exception) {
+                error_log('Falha ao preparar o esquema do banco: ' . $exception->getMessage());
+                throw $exception;
+            }
+
             self::$connection = $connection;
         }
 
