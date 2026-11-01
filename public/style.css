@@ -1804,8 +1804,39 @@ select {
 }
 
 .about-hero-content > .about-project-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    max-width: 490px;
     margin-top: 30px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 6px;
+    background: var(--surface);
+}
+
+.about-project-mark {
+    display: grid;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--notice-bg);
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.about-project-note p {
+    color: var(--muted);
     font-size: 12px;
+    line-height: 1.5;
+}
+
+.about-project-note strong {
+    color: var(--text);
 }
 
 .about-hero-visual {
@@ -1816,74 +1847,51 @@ select {
     margin: 0;
     border: 1px solid var(--border);
     border-radius: 10px;
-    background: #050505;
+    overflow: hidden;
+    background: #151719;
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.1);
 }
 
 .about-hero-visual::before {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 64%;
-    aspect-ratio: 1;
-    border: 1px solid var(--border);
-    border-radius: 50%;
+    z-index: 1;
+    inset: 35% 0 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
     content: "";
-    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
 
 .about-hero-visual img {
     position: relative;
-    z-index: 1;
-    width: min(88%, 430px);
-    margin: 20px auto 42px;
-    object-fit: contain;
-}
-
-.about-visual-index {
-    position: absolute;
-    z-index: 2;
-    top: 20px;
-    right: 22px;
-    left: 22px;
-    display: flex;
-    justify-content: space-between;
-    color: #ff2632;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-
-.about-visual-index span {
-    color: #a1a1aa;
+    width: 100%;
+    height: 100%;
+    min-height: 380px;
+    object-fit: cover;
+    object-position: center;
 }
 
 .about-hero-visual figcaption {
     position: absolute;
     z-index: 2;
-    right: 18px;
-    bottom: 18px;
-    left: 18px;
+    right: 24px;
+    bottom: 24px;
+    left: 24px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 16px;
-    border: 1px solid #3b3f45;
-    border-radius: 6px;
-    background: #191c20;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    color: #fff;
 }
 
 .about-hero-visual figcaption span {
-    color: var(--red);
-    font-size: 10px;
+    color: #ff5b64;
+    font-size: 9px;
     font-weight: 800;
     letter-spacing: 1px;
 }
 
 .about-hero-visual figcaption strong {
-    color: #f3f4f6;
-    font-size: 12px;
+    font-size: 20px;
 }
 
 .about-story {
@@ -2054,6 +2062,10 @@ select {
         min-height: 330px;
     }
 
+    .about-hero-visual img {
+        min-height: 330px;
+    }
+
     .about-story-grid {
         gap: 40px;
     }
@@ -2102,18 +2114,17 @@ select {
     }
 
     .about-hero-visual img {
-        width: min(88%, 310px);
+        min-height: 290px;
     }
 
     .about-hero-visual figcaption {
-        right: 12px;
-        bottom: 12px;
-        left: 12px;
-        padding: 12px;
+        right: 18px;
+        bottom: 18px;
+        left: 18px;
     }
 
     .about-hero-visual figcaption strong {
-        font-size: 10px;
+        font-size: 17px;
     }
 
     .about-story {

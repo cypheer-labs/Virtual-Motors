@@ -42,19 +42,24 @@ session_start();
                             Conheça a Virtual Motors <span aria-hidden="true">↓</span>
                         </a>
                     </div>
-                    <p class="about-project-note">Projeto acadêmico de e-commerce automotivo.</p>
+                    <aside class="about-project-note" aria-label="Aviso sobre o projeto">
+                        <span class="about-project-mark" aria-hidden="true">i</span>
+                        <p>
+                            <strong>Projeto acadêmico.</strong>
+                            A Virtual Motors é uma marca fictícia; pedidos e pagamentos são apenas demonstrativos.
+                        </p>
+                    </aside>
                 </div>
 
                 <figure class="about-hero-visual">
-                    <div class="about-visual-index" aria-hidden="true">VM <span>01 / 03</span></div>
                     <img
-                        src="../assets/image.png"
-                        alt="Ilustração de um carro esportivo vermelho"
+                        src="https://gamebanana.com/mods/embeddables/642666?variant=sd_image"
+                        alt="La Hai-Rider, veículo de Wuthering Waves disponível no catálogo Virtual Motors"
                         fetchpriority="high"
                     >
                     <figcaption>
-                        <span>VIRTUAL MOTORS</span>
-                        <strong>O próximo destino começa aqui.</strong>
+                        <span>DO UNIVERSO DE WUTHERING WAVES</span>
+                        <strong>La Hai-Rider</strong>
                     </figcaption>
                 </figure>
             </div>
