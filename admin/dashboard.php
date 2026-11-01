@@ -106,11 +106,13 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
 );
 [$recentUsuarios, $recentUsuariosError] = dashboard_query(
     $pdo,
-    'SELECT id_usuario, nome, email, tipo_usuario FROM usuario ORDER BY id_usuario DESC LIMIT 5'
+    'SELECT id_usuario, uid AS UID, nome, email, tipo_usuario FROM usuario ORDER BY id_usuario DESC LIMIT 5'
 );
 [$recentPedidos, $recentPedidosError] = dashboard_query(
     $pdo,
-    'SELECT id_pedido, id_usuario, data_entrega, valor_total, pagamento, status_pedido FROM pedido ORDER BY id_pedido DESC LIMIT 5'
+    'SELECT p.id_pedido, p.id_usuario, u.uid AS UID, p.data_entrega, p.valor_total, p.pagamento, p.status_pedido '
+    . 'FROM pedido p JOIN usuario u ON u.id_usuario = p.id_usuario '
+    . 'ORDER BY p.id_pedido DESC LIMIT 5'
 );
 ?>
 <!DOCTYPE html>

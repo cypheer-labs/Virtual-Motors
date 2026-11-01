@@ -128,7 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $_SESSION['virtual_motors_ultimo_pedido'] = $idPedido;
-            $_SESSION[$chaveCarrinho] = [];
+            foreach ($itensPedido as $idCarro => $quantidade) {
+                $quantidadeRestante = (int) ($_SESSION[$chaveCarrinho][$idCarro] ?? 0) - (int) $quantidade;
+                if ($quantidadeRestante > 0) {
+                    $_SESSION[$chaveCarrinho][$idCarro] = $quantidadeRestante;
+                } else {
+                    unset($_SESSION[$chaveCarrinho][$idCarro]);
+                }
+            }
             unset(
                 $_SESSION['virtual_motors_compra_direta'],
                 $_SESSION[$chavePedidoPendente],

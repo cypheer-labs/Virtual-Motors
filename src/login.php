@@ -5,6 +5,7 @@ use VirtualMotors\Service\AuthService;
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/userrepository.php';
 require_once __DIR__ . '/authservice.php';
+require_once __DIR__ . '/carrinhorepository.php';
 
 // Inicia a sessão
 session_start();
@@ -25,8 +26,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $_SESSION['usuario_email'] = $usuario['email'];
                 $_SESSION['usuario_nome'] = $usuario['nome'];
+                $_SESSION['usuario_uid'] = (string) $usuario['uid'];
                 $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
+                try {
+                    $carrinhoRepository = new \VirtualMotors\Repository\CarrinhoRepository();
+                    $idUsuario = (int) $usuario['id'];
+                    $carrinhoAtual = $_SESSION['virtual_motors_carrinho'] ?? [];
+                    $_SESSION['virtual_motors_carrinho'] =
+                        (int) ($_SESSION['virtual_motors_carrinho_usuario_id'] ?? 0) === $idUsuario
+                            ? $carrinhoAtual
+                            : $carrinhoRepository->combinar(
+                                $carrinhoRepository->buscar($idUsuario),
+                                $carrinhoAtual
+                            );
+                    $_SESSION['virtual_motors_carrinho_usuario_id'] = (int) $usuario['id'];
+                    $carrinhoRepository->salvar($idUsuario, $_SESSION['virtual_motors_carrinho']);
+                } catch (Throwable $erroCarrinho) {
+                    error_log($erroCarrinho->getMessage());
+                    $_SESSION['virtual_motors_carrinho_mensagem'] =
+                        'Não foi possível sincronizar seu carrinho. Seus itens desta sessão continuam disponíveis.';
+                }
                 $destinoLogin = isset($_SESSION['virtual_motors_compra_direta'])
+                    || !empty($_SESSION['virtual_motors_pagamento_pendente'])
                     ? 'pagamento.php'
                     : '../index.php';
 

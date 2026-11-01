@@ -28,9 +28,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'comprar
 }
 
 if (empty($_SESSION['usuario_email'])) {
+    $_SESSION['virtual_motors_pagamento_pendente'] = true;
     header('Location: login.php');
     exit;
 }
+unset($_SESSION['virtual_motors_pagamento_pendente']);
 
 if (!$modoVisualizacao && isset($_SESSION[$chaveCompraDireta])) {
     $idCarroDireto = filter_var($_SESSION[$chaveCompraDireta], FILTER_VALIDATE_INT);

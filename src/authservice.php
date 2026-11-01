@@ -34,9 +34,9 @@ class AuthService
         string $senha,
         string $tipoUsuario = 'cliente',
         string $telefone = ''
-    ): bool {
+    ): ?string {
         if ($this->userRepository->emailExists($email)) {
-            return false;
+            return null;
         }
 
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);

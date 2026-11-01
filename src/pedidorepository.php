@@ -3,6 +3,7 @@
 namespace VirtualMotors\Repository;
 
 use PDO;
+use RuntimeException;
 use Throwable;
 use VirtualMotors\Core\Database;
 
@@ -20,6 +21,15 @@ class PedidoRepository
         $this->connection->beginTransaction();
 
         try {
+            $consultaUid = $this->connection->prepare(
+                'SELECT uid FROM usuario WHERE id_usuario = :id_usuario FOR UPDATE'
+            );
+            $consultaUid->execute(['id_usuario' => $pedido['id_usuario']]);
+            $uidUsuario = $consultaUid->fetchColumn();
+            if ($uidUsuario === false || !ctype_digit((string) $uidUsuario) || strlen((string) $uidUsuario) < 8) {
+                throw new RuntimeException('A conta não possui um UID válido para associar ao pedido.');
+            }
+
             $inserirPedido = $this->connection->prepare(
                 'INSERT INTO pedido (id_usuario, valor_total, pagamento, status_pedido, endereco_entrega) '
                 . 'VALUES (:id_usuario, :valor_total, :pagamento, :status_pedido, :endereco_entrega)'
@@ -50,6 +60,30 @@ class PedidoRepository
                 ]);
             }
 
+            $atualizarCarrinho = $this->connection->prepare(
+                'UPDATE carrinho_usuario SET quantidade = quantidade - :quantidade_subtrair '
+                . 'WHERE id_usuario = :id_usuario AND id_carro = :id_carro '
+                . 'AND quantidade > :quantidade_limite'
+            );
+            $removerCarrinho = $this->connection->prepare(
+                'DELETE FROM carrinho_usuario '
+                . 'WHERE id_usuario = :id_usuario AND id_carro = :id_carro '
+                . 'AND quantidade <= :quantidade_limite'
+            );
+            foreach ($pedido['itens'] as $item) {
+                $atualizarCarrinho->execute([
+                    'id_usuario' => $pedido['id_usuario'],
+                    'id_carro' => $item['id_carro'],
+                    'quantidade_subtrair' => $item['quantidade'],
+                    'quantidade_limite' => $item['quantidade'],
+                ]);
+                $removerCarrinho->execute([
+                    'id_usuario' => $pedido['id_usuario'],
+                    'id_carro' => $item['id_carro'],
+                    'quantidade_limite' => $item['quantidade'],
+                ]);
+            }
+
             $this->connection->commit();
 
             return $idPedido;
@@ -66,9 +100,10 @@ class PedidoRepository
     {
         $consulta = $this->connection->prepare(
             'SELECT p.id_pedido, p.criado_em, p.valor_total, p.pagamento, p.status_pedido, '
-            . 'p.endereco_entrega, i.id_carro, i.nome_carro, i.jogo_origem, '
+            . 'p.endereco_entrega, u.uid AS uid_usuario, i.id_carro, i.nome_carro, i.jogo_origem, '
             . 'i.quantidade, i.preco_unitario '
-            . 'FROM pedido p LEFT JOIN item_pedido i ON i.id_pedido = p.id_pedido '
+            . 'FROM pedido p JOIN usuario u ON u.id_usuario = p.id_usuario '
+            . 'LEFT JOIN item_pedido i ON i.id_pedido = p.id_pedido '
             . 'WHERE p.id_usuario = :id_usuario ORDER BY p.criado_em DESC, p.id_pedido DESC'
         );
         $consulta->execute(['id_usuario' => $idUsuario]);
@@ -84,6 +119,7 @@ class PedidoRepository
                     'pagamento' => $linha['pagamento'],
                     'status_pedido' => $linha['status_pedido'],
                     'endereco_entrega' => $linha['endereco_entrega'],
+                    'uid_usuario' => (string) $linha['uid_usuario'],
                     'itens' => [],
                 ];
             }
@@ -106,9 +142,10 @@ class PedidoRepository
     {
         $limite = max(1, min($limite, 10));
         $consulta = $this->connection->prepare(
-            'SELECT id_pedido, criado_em, valor_total, status_pedido '
-            . 'FROM pedido WHERE id_usuario = :id_usuario '
-            . 'ORDER BY criado_em DESC, id_pedido DESC LIMIT ' . $limite
+            'SELECT p.id_pedido, p.criado_em, p.valor_total, p.status_pedido, u.uid AS uid_usuario '
+            . 'FROM pedido p JOIN usuario u ON u.id_usuario = p.id_usuario '
+            . 'WHERE p.id_usuario = :id_usuario '
+            . 'ORDER BY p.criado_em DESC, p.id_pedido DESC LIMIT ' . $limite
         );
         $consulta->execute(['id_usuario' => $idUsuario]);
 

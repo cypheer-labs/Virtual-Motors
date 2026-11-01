@@ -2,10 +2,12 @@
 
 use VirtualMotors\Repository\PedidoRepository;
 use VirtualMotors\Repository\CarroRepository;
+use VirtualMotors\Repository\UserRepository;
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/pedidorepository.php';
 require_once __DIR__ . '/carrorepository.php';
+require_once __DIR__ . '/userrepository.php';
 
 session_start();
 
@@ -16,7 +18,10 @@ if (empty($_SESSION['usuario_email']) || empty($_SESSION['usuario_id'])) {
 
 $pedidos = [];
 $erroBanco = false;
+$uidConta = '';
 try {
+    $uidConta = (new UserRepository())->findUidById((int) $_SESSION['usuario_id']) ?? '';
+    $_SESSION['usuario_uid'] = $uidConta;
     $pedidos = (new PedidoRepository())->buscarPorUsuario((int) $_SESSION['usuario_id']);
     $idsCarros = [];
     foreach ($pedidos as $pedido) {
@@ -57,6 +62,7 @@ $headerPaginaCompras = true;
             <span class="section-tag">ÁREA DO CLIENTE</span>
             <h1>Minhas compras</h1>
             <p>Acompanhe seus pedidos, itens e dados de entrega.</p>
+            <p class="profile-uid">Compras vinculadas ao UID: <strong><?= htmlspecialchars($uidConta, ENT_QUOTES, 'UTF-8') ?></strong></p>
         </div>
 
         <?php if ($erroBanco) : ?>
@@ -75,6 +81,7 @@ $headerPaginaCompras = true;
                         <header class="purchase-order-header">
                             <div>
                                 <span class="purchase-order-label">Pedido #<?= (int) $pedido['id_pedido'] ?></span>
+                                <span class="purchase-order-label">UID <?= htmlspecialchars($pedido['uid_usuario'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <h2 id="order-<?= (int) $pedido['id_pedido'] ?>">
                                     <?= htmlspecialchars(date('d/m/Y \à\s H:i', strtotime($pedido['criado_em'])), ENT_QUOTES, 'UTF-8') ?>
                                 </h2>
