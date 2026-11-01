@@ -28,7 +28,7 @@ class PedidoRepository
                 'id_usuario' => $pedido['id_usuario'],
                 'valor_total' => $pedido['valor_total'],
                 'pagamento' => $pedido['pagamento'],
-                'status_pedido' => 'Confirmado (demonstração)',
+                'status_pedido' => 'Confirmado',
                 'endereco_entrega' => $pedido['endereco_entrega'],
             ]);
 

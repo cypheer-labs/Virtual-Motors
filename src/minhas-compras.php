@@ -63,13 +63,14 @@ $headerPaginaCompras = true;
             <p class="cart-message cart-error" role="alert">Não foi possível carregar seu histórico. Tente novamente em instantes.</p>
         <?php elseif ($pedidos === []) : ?>
             <section class="purchase-history-empty">
-                <h2>Nenhuma compra demonstrativa registrada</h2>
-                <p>Suas compras aparecerão aqui assim que você concluir um pedido de demonstração.</p>
+                <h2>Nenhuma compra encontrada</h2>
+                <p>Suas compras aparecerão aqui após a conclusão do pedido.</p>
                 <a class="button button-primary" href="../index.php#veiculos">Explorar veículos</a>
             </section>
         <?php else : ?>
             <div class="purchase-history-list">
                 <?php foreach ($pedidos as $pedido) : ?>
+                    <?php $statusPedido = str_replace(' (demonstração)', '', $pedido['status_pedido']); ?>
                     <article class="purchase-order" aria-labelledby="order-<?= (int) $pedido['id_pedido'] ?>">
                         <header class="purchase-order-header">
                             <div>
@@ -78,7 +79,9 @@ $headerPaginaCompras = true;
                                     <?= htmlspecialchars(date('d/m/Y \à\s H:i', strtotime($pedido['criado_em'])), ENT_QUOTES, 'UTF-8') ?>
                                 </h2>
                             </div>
-                            <span class="purchase-order-status"><?= htmlspecialchars($pedido['status_pedido'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <span class="purchase-order-status">
+                                <?= htmlspecialchars($statusPedido, ENT_QUOTES, 'UTF-8') ?>
+                            </span>
                         </header>
 
                         <div class="purchase-order-content">

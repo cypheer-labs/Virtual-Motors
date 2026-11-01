@@ -58,20 +58,23 @@ try {
                 <p class="cart-message cart-error" role="alert">Não foi possível carregar suas compras recentes. Tente novamente em instantes.</p>
             <?php elseif ($pedidosRecentes === []) : ?>
                 <section class="purchase-history-empty">
-                    <h3>Nenhuma compra demonstrativa registrada</h3>
-                    <p>Suas compras aparecerão aqui assim que você concluir um pedido de demonstração.</p>
+                    <h3>Nenhuma compra encontrada</h3>
+                    <p>Suas compras aparecerão aqui após a conclusão do pedido.</p>
                     <a class="button button-primary" href="../index.php#veiculos">Explorar veículos</a>
                 </section>
             <?php else : ?>
                 <div class="purchase-history-list">
                     <?php foreach ($pedidosRecentes as $pedido) : ?>
+                        <?php $statusPedido = str_replace(' (demonstração)', '', $pedido['status_pedido']); ?>
                         <article class="purchase-order profile-purchase-order">
                             <header class="purchase-order-header">
                                 <div>
                                     <span class="purchase-order-label">Pedido #<?= (int) $pedido['id_pedido'] ?></span>
                                     <h3><?= htmlspecialchars(date('d/m/Y \à\s H:i', strtotime($pedido['criado_em'])), ENT_QUOTES, 'UTF-8') ?></h3>
                                 </div>
-                                <span class="purchase-order-status"><?= htmlspecialchars($pedido['status_pedido'], ENT_QUOTES, 'UTF-8') ?></span>
+                                <span class="purchase-order-status">
+                                    <?= htmlspecialchars($statusPedido, ENT_QUOTES, 'UTF-8') ?>
+                                </span>
                             </header>
                             <footer class="purchase-order-total">
                                 <span>Total do pedido</span>
