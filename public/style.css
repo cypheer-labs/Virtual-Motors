@@ -20,7 +20,10 @@ body {
 }
 
 img {
-    max-width: 100%;
+    max-    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     display: block;
 }
 
@@ -147,6 +150,8 @@ select {
 
     font-size: 14px;
     font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
 
     transition: 0.2s;
 }
@@ -289,15 +294,22 @@ select {
 }
 
 .header-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: var(--red);
     color: white;
 
+    min-height: 42px;
     padding: 12px 22px;
 
     border-radius: 5px;
 
     font-size: 14px;
     font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
 
     transition: 0.2s;
 }
@@ -309,11 +321,13 @@ select {
 .header-button-secondary {
     border: 1px solid var(--red);
     background: transparent;
+    color: var(--red);
     padding: 11px 16px;
 }
 
 .header-button-secondary:hover {
     background: var(--red-dark);
+    color: white;
 }
 
 .menu-button {
@@ -1765,8 +1779,7 @@ select {
 
 .about-hero h1 span,
 .about-story-grid h2 span,
-.about-values-heading h2 span,
-.about-cta h2 span {
+.about-values-heading h2 span {
     color: var(--red);
 }
 
@@ -1788,8 +1801,7 @@ select {
     width: auto;
 }
 
-.about-text-link,
-.about-inline-link {
+.about-text-link {
     display: inline-flex;
     align-items: center;
     gap: 9px;
@@ -1798,8 +1810,7 @@ select {
     font-weight: 700;
 }
 
-.about-text-link:hover,
-.about-inline-link:hover {
+.about-text-link:hover {
     color: var(--red);
 }
 
@@ -1842,7 +1853,7 @@ select {
 .about-hero-visual {
     position: relative;
     display: grid;
-    min-height: 380px;
+    aspect-ratio: 16 / 10;
     align-items: center;
     margin: 0;
     border: 1px solid var(--border);
@@ -1865,8 +1876,8 @@ select {
     position: relative;
     width: 100%;
     height: 100%;
-    min-height: 380px;
-    object-fit: cover;
+    min-height: 0;
+    object-fit: contain;
     object-position: center;
 }
 
@@ -1924,8 +1935,7 @@ select {
 }
 
 .about-story-grid h2,
-.about-values-heading h2,
-.about-cta h2 {
+.about-values-heading h2 {
     margin-top: 16px;
     font-size: clamp(34px, 4vw, 50px);
     font-weight: 800;
@@ -2022,36 +2032,6 @@ select {
     font-size: 13px;
 }
 
-.about-cta {
-    padding: 48px 0;
-    background: var(--surface);
-}
-
-.about-cta-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    padding: 30px 34px;
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--red);
-    border-radius: 8px;
-    background:
-        linear-gradient(110deg, rgba(229, 9, 20, 0.07), transparent 60%),
-        var(--surface);
-}
-
-.about-cta h2 {
-    max-width: 650px;
-    margin-top: 8px;
-    font-size: clamp(26px, 3vw, 36px);
-}
-
-.about-cta .button {
-    width: auto;
-    flex: 0 0 auto;
-}
-
 @media (max-width: 900px) {
     .about-hero-layout {
         grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
@@ -2059,11 +2039,7 @@ select {
     }
 
     .about-hero-visual {
-        min-height: 330px;
-    }
-
-    .about-hero-visual img {
-        min-height: 330px;
+        align-self: center;
     }
 
     .about-story-grid {
@@ -2110,11 +2086,7 @@ select {
     }
 
     .about-hero-visual {
-        min-height: 290px;
-    }
-
-    .about-hero-visual img {
-        min-height: 290px;
+        width: 100%;
     }
 
     .about-hero-visual figcaption {
@@ -2179,19 +2151,6 @@ select {
         margin: 22px 0 16px;
     }
 
-    .about-cta {
-        padding: 0 0 36px;
-    }
-
-    .about-cta-content {
-        align-items: stretch;
-        flex-direction: column;
-        padding: 24px 20px;
-    }
-
-    .about-cta .button {
-        width: 100%;
-    }
 }
 
 
@@ -2597,9 +2556,9 @@ select {
     }
 
     .user-menu-right .header-button {
-        min-height: 40px;
-        padding: 0 10px;
-        font-size: 12px;
+        min-height: 38px;
+        padding: 0 8px;
+        font-size: 11px;
     }
 
     .nav {

@@ -37,7 +37,7 @@ session_start();
                         digital feita para quem sabe o que procura.
                     </p>
                     <div class="about-hero-actions">
-                        <a class="button button-primary" href="../index.php#veiculos">Explorar veículos</a>
+                        <a class="button button-primary" href="../index.php#contato">Falar com a equipe</a>
                         <a class="about-text-link" href="#quem-somos">
                             Conheça a Virtual Motors <span aria-hidden="true">↓</span>
                         </a>
@@ -84,9 +84,6 @@ session_start();
                             Um projeto acadêmico com personalidade própria — feito para quem repara
                             nos detalhes antes de acelerar.
                         </p>
-                        <a class="about-inline-link" href="../index.php#veiculos">
-                            Descubra o catálogo <span aria-hidden="true">↗</span>
-                        </a>
                     </div>
                 </div>
             </div>
@@ -127,18 +124,6 @@ session_start();
                         <p>Busca intuitiva, informação organizada e uma experiência sem complicação.</p>
                     </article>
                 </div>
-            </div>
-        </section>
-
-        <section class="about-cta">
-            <div class="container about-cta-content">
-                <div>
-                    <span class="about-story-index">SUA PRÓXIMA DESCOBERTA</span>
-                    <h2>Encontre o carro que <span>fala com você.</span></h2>
-                </div>
-                <a class="button button-primary" href="../index.php#veiculos">
-                    Ver catálogo <span aria-hidden="true">↗</span>
-                </a>
             </div>
         </section>
     </main>

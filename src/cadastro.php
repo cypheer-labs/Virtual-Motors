@@ -147,6 +147,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             height: 48px;
             background: #0051ff;
@@ -155,6 +158,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
             cursor: pointer;
             transition: background 0.2s;
             margin-top: 10px;
