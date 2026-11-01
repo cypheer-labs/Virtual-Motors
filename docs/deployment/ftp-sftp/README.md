@@ -17,3 +17,9 @@ Este modelo é para a extensão `liximomo.vscode-sftp` e parte de um host que ac
 Guarde os arquivos reais de produção fora do Git. Para novas configurações, copie `config/database.config.php.example` para `config/database.config.php` (remova `.example`) e preencha as credenciais. A aplicação precisa carregar a configuração de produção que a hospedagem já usa; este modelo de FTP não cria nem corrige a conexão do banco.
 
 A lista `ignore` ajuda a evitar uploads locais acidentais, mas não substitui backups do servidor. O perfil limita o modo de operação configurando upload manual e Sync sem exclusões.
+
+## Migrations automáticas
+
+FTP apenas transfere arquivos; ele não executa comandos SQL nem inicia tarefas no servidor. Depois de publicar `src/database.php` e `src/schemamigrationrunner.php`, a aplicação verifica e aplica a migration de UID e carrinho na primeira conexão ao banco. O controle `vm_schema_migrations` impede reaplicações, e um lock do MySQL evita execuções simultâneas. A migration SQL continua excluída dos uploads normais; a execução automática usa a implementação PHP versionada.
+
+Antes de enviar esses arquivos, confirme que a configuração de produção existente aponta para o banco correto, que o usuário MySQL tem permissões de `CREATE` e `ALTER`, e que `carros` já usa InnoDB. Faça backup do banco de produção. Se `carros` ainda não usa InnoDB, aplique primeiro `database/migrations/20261101_convert_cars_to_innodb.sql` pelo painel do provedor; o runner interrompe a execução com uma mensagem explícita se esse pré-requisito faltar. Após o upload FTP, a migration é aplicada quando a hospedagem receber a próxima requisição à aplicação.

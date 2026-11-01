@@ -80,7 +80,7 @@ class Database
                     throw new PDOException('O servidor MySQL não respondeu.', 2002);
                 }
 
-                self::$connection = new PDO(
+                $connection = new PDO(
                     "mysql:host={$servidor};port={$porta};dbname={$banco};charset=utf8mb4;connect_timeout=1",
                     $usuario,
                     $senha,
@@ -99,6 +99,10 @@ class Database
                     $e
                 );
             }
+
+            require_once __DIR__ . '/schemamigrationrunner.php';
+            SchemaMigrationRunner::run($connection);
+            self::$connection = $connection;
         }
 
         return self::$connection;

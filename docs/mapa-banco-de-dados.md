@@ -40,6 +40,12 @@ as migrations alteram um banco que já existe.
    do carrinho. O carrinho combina os itens da sessão e os da conta no login;
    os itens comprados são removidos do carrinho na mesma transação do pedido.
 
+Na hospedagem por FTP, depois do upload de `src/database.php` e
+`src/schemamigrationrunner.php`, essa migration é aplicada automaticamente na
+primeira conexão ao banco. O servidor deve ter `carros` em InnoDB e a conta do
+MySQL precisa ter permissões para criar tabela e alterar `usuario`. A migration
+é registrada em `vm_schema_migrations` e não é repetida.
+
 O snapshot `dump/dump_server/if0_43124603_loja_carros.sql` não é a base recomendada
 para uma instalação nova: ele representa o servidor em uma data anterior, usa
 MyISAM e não contém `imagem_url` nem os campos do histórico de compras. Se esse
