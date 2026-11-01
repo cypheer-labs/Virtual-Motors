@@ -214,13 +214,29 @@ require __DIR__ . '/header.php';
 
         <form method="POST" action="login.php" autocomplete="off">
             <div class="form-group">
-                <label>E-MAIL</label>
-                <input type="email" name="email" autocomplete="off" required placeholder="exemplo@email.com">
+                <label for="email">E-MAIL</label>
+                <input id="email" type="email" name="email" autocomplete="off" required placeholder="exemplo@email.com">
             </div>
 
             <div class="form-group">
-                <label>SENHA</label>
-                <input type="password" name="senha" autocomplete="new-password" required placeholder="••••••••••••">
+                <label for="senha">SENHA</label>
+                <div class="password-field">
+                    <input
+                        id="senha"
+                        type="password"
+                        name="senha"
+                        autocomplete="current-password"
+                        required
+                        placeholder="••••••••••••"
+                    >
+                    <button
+                        class="password-toggle"
+                        type="button"
+                        data-password-toggle
+                        aria-controls="senha"
+                        aria-pressed="false"
+                    >Mostrar</button>
+                </div>
             </div>
 
             <div class="forgot-password">

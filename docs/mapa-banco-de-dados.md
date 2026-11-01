@@ -15,6 +15,7 @@ as migrations alteram um banco que já existe.
 | [`dump/dump_server/if0_43124603_loja_carros.sql`](../dump/dump_server/if0_43124603_loja_carros.sql) | Snapshot completo antigo do banco de produção, com as quatro tabelas e dados existentes naquele momento. | Apenas para recuperação/importação intencional desse snapshot; não importar junto com os quatro arquivos acima. |
 | [`database/migrations/20261015_add_car_image_url.sql`](../database/migrations/20261015_add_car_image_url.sql) | Adiciona `carros.imagem_url`. | Em um banco antigo cuja tabela `carros` ainda não tenha essa coluna. |
 | [`database/migrations/20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql) | Habilita transações em `pedido`/`item_pedido` e adiciona data, endereço, quantidade e cópia dos dados do veículo no pedido. | Em um banco com as tabelas de pedido já criadas, antes de usar o histórico/checkout atual. |
+| [`database/migrations/20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql) | Converte `carros` para InnoDB, necessário para que os itens do pedido respeitem a chave estrangeira. | Após a migration de histórico, em bancos nos quais `carros` ainda usa MyISAM. |
 
 ### Ordem de instalação local
 
@@ -27,7 +28,10 @@ as migrations alteram um banco que já existe.
 4. Execute [`20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql)
    uma vez se for usar o fluxo de
    compras/histórico que existe no código.
-5. Configure a conexão em
+5. Execute [`20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql)
+   para habilitar a gravação dos itens de pedido em bancos que ainda usam MyISAM
+   na tabela `carros`.
+6. Configure a conexão em
    [`config/database.config.php.example`](../config/database.config.php.example),
    copiando-o para `config/database.config.php` e preenchendo os valores locais.
 
@@ -38,6 +42,8 @@ snapshot específico for restaurado para uso com o código atual, execute uma ve
 [`20261015_add_car_image_url.sql`](../database/migrations/20261015_add_car_image_url.sql)
 e depois
 [`20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql).
+Depois execute
+[`20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql).
 Não misture esse snapshot com os dumps locais nem reaplique migrations em um
 banco que já tenha essas colunas.
 

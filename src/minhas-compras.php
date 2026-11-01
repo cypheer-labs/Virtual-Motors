@@ -1,9 +1,11 @@
 <?php
 
 use VirtualMotors\Repository\PedidoRepository;
+use VirtualMotors\Repository\CarroRepository;
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/pedidorepository.php';
+require_once __DIR__ . '/carrorepository.php';
 
 session_start();
 
@@ -16,6 +18,17 @@ $pedidos = [];
 $erroBanco = false;
 try {
     $pedidos = (new PedidoRepository())->buscarPorUsuario((int) $_SESSION['usuario_id']);
+    $idsCarros = [];
+    foreach ($pedidos as $pedido) {
+        foreach ($pedido['itens'] as $item) {
+            $idsCarros[] = (int) $item['id_carro'];
+        }
+    }
+
+    $imagensCarros = [];
+    foreach ((new CarroRepository())->buscarPorIds($idsCarros) as $carro) {
+        $imagensCarros[(int) $carro['id_carro']] = $carro['imagem'];
+    }
 } catch (PDOException $erro) {
     error_log($erro->getMessage());
     http_response_code(503);
@@ -50,8 +63,8 @@ $headerPaginaCompras = true;
             <p class="cart-message cart-error" role="alert">Não foi possível carregar seu histórico. Tente novamente em instantes.</p>
         <?php elseif ($pedidos === []) : ?>
             <section class="purchase-history-empty">
-                <h2>Nenhuma compra por aqui ainda</h2>
-                <p>Quando você confirmar um pedido, ele aparecerá nesta página com todos os detalhes.</p>
+                <h2>Nenhuma compra demonstrativa registrada</h2>
+                <p>Suas compras aparecerão aqui assim que você concluir um pedido de demonstração.</p>
                 <a class="button button-primary" href="../index.php#veiculos">Explorar veículos</a>
             </section>
         <?php else : ?>
@@ -73,6 +86,12 @@ $headerPaginaCompras = true;
                                 <h3>Itens comprados</h3>
                                 <?php foreach ($pedido['itens'] as $item) : ?>
                                     <div class="purchase-order-item">
+                                        <img
+                                            class="purchase-order-item-image"
+                                            src="<?= htmlspecialchars($imagensCarros[$item['id_carro']] ?? '../assets/image.png', ENT_QUOTES, 'UTF-8') ?>"
+                                            alt="Foto do veículo <?= htmlspecialchars($item['nome_carro'] ?: 'comprado', ENT_QUOTES, 'UTF-8') ?>"
+                                            loading="lazy"
+                                        >
                                         <div>
                                             <strong><?= htmlspecialchars($item['nome_carro'] ?: 'Veículo', ENT_QUOTES, 'UTF-8') ?></strong>
                                             <span><?= htmlspecialchars($item['jogo_origem'] ?: 'Origem não informada', ENT_QUOTES, 'UTF-8') ?> · <?= (int) $item['quantidade'] ?> unidade(s)</span>

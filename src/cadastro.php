@@ -226,12 +226,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="form-group">
                 <label for="senha">SENHA</label>
-                <input type="password" id="senha" name="senha" autocomplete="new-password" required placeholder="••••••••••••">
+                <div class="password-field">
+                    <input
+                        type="password"
+                        id="senha"
+                        name="senha"
+                        autocomplete="new-password"
+                        required
+                        placeholder="••••••••••••"
+                    >
+                    <button
+                        class="password-toggle"
+                        type="button"
+                        data-password-toggle
+                        aria-controls="senha"
+                        aria-pressed="false"
+                    >Mostrar</button>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="confirma_senha">CONFIRMAR SENHA</label>
-                <input type="password" id="confirma_senha" name="confirma_senha" autocomplete="new-password" required placeholder="••••••••••••">
+                <div class="password-field">
+                    <input
+                        type="password"
+                        id="confirma_senha"
+                        name="confirma_senha"
+                        autocomplete="new-password"
+                        required
+                        placeholder="••••••••••••"
+                    >
+                    <button
+                        class="password-toggle"
+                        type="button"
+                        data-password-toggle
+                        aria-controls="confirma_senha"
+                        aria-pressed="false"
+                    >Mostrar</button>
+                </div>
             </div>
 
             <button type="submit" class="btn-submit">Cadastrar</button>

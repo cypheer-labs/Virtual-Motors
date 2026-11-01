@@ -90,6 +90,7 @@ class PedidoRepository
 
             if ($linha['id_carro'] !== null) {
                 $pedidos[$idPedido]['itens'][] = [
+                    'id_carro' => (int) $linha['id_carro'],
                     'nome_carro' => $linha['nome_carro'],
                     'jogo_origem' => $linha['jogo_origem'],
                     'quantidade' => (int) $linha['quantidade'],

@@ -1244,10 +1244,20 @@ select {
 
 .purchase-order-item {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
     padding: 12px 0;
     border-top: 1px solid var(--border);
+}
+
+.purchase-order-item-image {
+    width: 96px;
+    height: 64px;
+    flex: 0 0 auto;
+    border-radius: 6px;
+    background: var(--gray-light);
+    object-fit: cover;
 }
 
 .purchase-order-item div,
@@ -2061,6 +2071,7 @@ select {
 
     .purchase-order-item {
         flex-direction: column;
+        align-items: flex-start;
         gap: 6px;
     }
 
@@ -2568,6 +2579,35 @@ select {
 .profile-purchases {
     display: grid;
     gap: 18px;
+}
+
+.password-field {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.form-group .password-field input {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+}
+
+.password-toggle {
+    flex: 0 0 auto;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
 }
 
 .profile-purchases-heading {

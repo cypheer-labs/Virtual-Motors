@@ -58,8 +58,8 @@ try {
                 <p class="cart-message cart-error" role="alert">Não foi possível carregar suas compras recentes. Tente novamente em instantes.</p>
             <?php elseif ($pedidosRecentes === []) : ?>
                 <section class="purchase-history-empty">
-                    <h3>Nenhuma compra por aqui ainda</h3>
-                    <p>Quando você confirmar um pedido, ele aparecerá aqui.</p>
+                    <h3>Nenhuma compra demonstrativa registrada</h3>
+                    <p>Suas compras aparecerão aqui assim que você concluir um pedido de demonstração.</p>
                     <a class="button button-primary" href="../index.php#veiculos">Explorar veículos</a>
                 </section>
             <?php else : ?>

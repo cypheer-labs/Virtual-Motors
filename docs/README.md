@@ -166,6 +166,7 @@ A branch principal deve conter a versão integrada e revisada do projeto. Os nom
 
    - `database/migrations/20261015_add_car_image_url.sql`
    - `database/migrations/20261022_add_purchase_history.sql`
+   - `database/migrations/20261101_convert_cars_to_innodb.sql`
 
 6. Copie `config/database.config.php.example` para `config/database.config.php`.
 7. Preencha as credenciais do banco de dados local. O arquivo real contém configurações privadas e não deve ser versionado.

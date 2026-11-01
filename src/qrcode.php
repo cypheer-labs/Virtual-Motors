@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (\Throwable $erro) {
             error_log($erro->getMessage());
             http_response_code(503);
-            $mensagemErro = 'Não foi possível registrar sua compra. Seus itens continuam no carrinho; tente novamente.';
+            $mensagemErro = 'Não foi possível registrar sua compra. Seus itens continuam disponíveis para uma nova tentativa; tente novamente.';
         }
     } else {
         http_response_code(400);
