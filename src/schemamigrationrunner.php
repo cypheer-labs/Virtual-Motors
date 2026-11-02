@@ -7,12 +7,16 @@ use RuntimeException;
 
 class SchemaMigrationRunner
 {
-    private const MIGRATION_VERSION = '20261102_add_account_uid_and_persistent_cart';
+    private const ACCOUNT_UID_MIGRATION = '20261102_add_account_uid_and_persistent_cart';
+    private const AUTH_SESSION_MIGRATION = '20261102_add_auth_session_version';
     private const LOCK_NAME = 'virtual_motors_schema_migration';
 
     public static function run(PDO $connection): void
     {
-        if (self::migrationIsApplied($connection)) {
+        if (
+            self::migrationIsApplied($connection, self::ACCOUNT_UID_MIGRATION)
+            && self::migrationIsApplied($connection, self::AUTH_SESSION_MIGRATION)
+        ) {
             return;
         }
 
@@ -31,16 +35,21 @@ class SchemaMigrationRunner
                 );
             }
 
-            if (self::migrationIsApplied($connection)) {
+            if (
+                self::migrationIsApplied($connection, self::ACCOUNT_UID_MIGRATION)
+                && self::migrationIsApplied($connection, self::AUTH_SESSION_MIGRATION)
+            ) {
                 return;
             }
 
-            self::applyAccountUidAndPersistentCart($connection);
-
-            $registrarVersao = $connection->prepare(
-                'INSERT INTO vm_schema_migrations (version) VALUES (:version)'
-            );
-            $registrarVersao->execute(['version' => self::MIGRATION_VERSION]);
+            if (!self::migrationIsApplied($connection, self::ACCOUNT_UID_MIGRATION)) {
+                self::applyAccountUidAndPersistentCart($connection);
+                self::registerMigration($connection, self::ACCOUNT_UID_MIGRATION);
+            }
+            if (!self::migrationIsApplied($connection, self::AUTH_SESSION_MIGRATION)) {
+                self::applyAuthSessionVersion($connection);
+                self::registerMigration($connection, self::AUTH_SESSION_MIGRATION);
+            }
         } finally {
             $connection->query("SELECT RELEASE_LOCK('" . self::LOCK_NAME . "')");
         }
@@ -94,6 +103,27 @@ class SchemaMigrationRunner
         self::assertCartTable($connection);
     }
 
+    private static function applyAuthSessionVersion(PDO $connection): void
+    {
+        if (!self::tableExists($connection, 'usuario')) {
+            throw new RuntimeException('A tabela usuario precisa existir antes da migration de sessão.');
+        }
+
+        if (!self::columnExists($connection, 'usuario', 'auth_version')) {
+            $connection->exec(
+                'ALTER TABLE usuario ADD COLUMN auth_version INT UNSIGNED NOT NULL DEFAULT 1'
+            );
+        }
+    }
+
+    private static function registerMigration(PDO $connection, string $version): void
+    {
+        $registrarVersao = $connection->prepare(
+            'INSERT INTO vm_schema_migrations (version) VALUES (:version)'
+        );
+        $registrarVersao->execute(['version' => $version]);
+    }
+
     private static function tableExists(PDO $connection, string $table): bool
     {
         $consulta = $connection->prepare(
@@ -105,7 +135,7 @@ class SchemaMigrationRunner
         return $consulta->fetchColumn() !== false;
     }
 
-    private static function migrationIsApplied(PDO $connection): bool
+    private static function migrationIsApplied(PDO $connection, string $version): bool
     {
         if (!self::tableExists($connection, 'vm_schema_migrations')) {
             return false;
@@ -114,7 +144,7 @@ class SchemaMigrationRunner
         $consulta = $connection->prepare(
             'SELECT 1 FROM vm_schema_migrations WHERE version = :version LIMIT 1'
         );
-        $consulta->execute(['version' => self::MIGRATION_VERSION]);
+        $consulta->execute(['version' => $version]);
 
         return $consulta->fetchColumn() !== false;
     }

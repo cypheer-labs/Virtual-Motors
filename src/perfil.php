@@ -8,9 +8,15 @@ use VirtualMotors\Repository\UserRepository;
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/pedidorepository.php';
 require_once __DIR__ . '/userrepository.php';
+require_once __DIR__ . '/authsession.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
+}
+
+if (!validar_sessao_usuario()) {
+    header('Location: login.php');
+    exit;
 }
 
 $idUsuario = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);

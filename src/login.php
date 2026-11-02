@@ -9,6 +9,8 @@ require_once __DIR__ . '/carrinhorepository.php';
 
 // Inicia a sessão
 session_start();
+require_once __DIR__ . '/authsession.php';
+validar_sessao_usuario();
 
 $mensagem = "";
 
@@ -28,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['usuario_nome'] = $usuario['nome'];
                 $_SESSION['usuario_uid'] = (string) $usuario['uid'];
                 $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
+                $_SESSION['auth_version'] = (int) $usuario['auth_version'];
                 try {
                     $carrinhoRepository = new \VirtualMotors\Repository\CarrinhoRepository();
                     $idUsuario = (int) $usuario['id'];

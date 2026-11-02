@@ -8,8 +8,14 @@ require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/pedidorepository.php';
 require_once __DIR__ . '/carrorepository.php';
 require_once __DIR__ . '/userrepository.php';
+require_once __DIR__ . '/authsession.php';
 
 session_start();
+
+if (!validar_sessao_usuario()) {
+    header('Location: login.php');
+    exit;
+}
 
 if (empty($_SESSION['usuario_email']) || empty($_SESSION['usuario_id'])) {
     header('Location: login.php');

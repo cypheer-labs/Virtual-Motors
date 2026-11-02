@@ -3,6 +3,8 @@
 use VirtualMotors\Service\AuthService;
 
 session_start();
+require_once __DIR__ . '/authsession.php';
+validar_sessao_usuario();
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/userrepository.php';

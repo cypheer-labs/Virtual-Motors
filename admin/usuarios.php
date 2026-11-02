@@ -210,7 +210,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $parametros['id_usuario'] = $idUsuario;
                 if ($senha !== '') {
                     $parametros['senha'] = password_hash($senha, PASSWORD_DEFAULT);
-                    $sql = 'UPDATE usuario SET nome = :nome, email = :email, telefone = :telefone, endereco = :endereco, tipo_usuario = :tipo_usuario, senha = :senha WHERE id_usuario = :id_usuario';
+                    $sql = 'UPDATE usuario SET nome = :nome, email = :email, telefone = :telefone, '
+                        . 'endereco = :endereco, tipo_usuario = :tipo_usuario, senha = :senha, '
+                        . 'auth_version = auth_version + 1 WHERE id_usuario = :id_usuario';
                 } else {
                     $sql = 'UPDATE usuario SET nome = :nome, email = :email, telefone = :telefone, endereco = :endereco, tipo_usuario = :tipo_usuario WHERE id_usuario = :id_usuario';
                 }

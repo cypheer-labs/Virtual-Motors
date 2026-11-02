@@ -17,6 +17,7 @@ as migrations alteram um banco que já existe.
 | [`database/migrations/20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql) | Habilita transações em `pedido`/`item_pedido` e adiciona data, endereço, quantidade e cópia dos dados do veículo no pedido. | Em um banco com as tabelas de pedido já criadas, antes de usar o histórico/checkout atual. |
 | [`database/migrations/20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql) | Converte `carros` para InnoDB, necessário para que os itens do pedido respeitem a chave estrangeira. | Após a migration de histórico, em bancos nos quais `carros` ainda usa MyISAM. |
 | [`database/migrations/20261102_add_account_uid_and_persistent_cart.sql`](../database/migrations/20261102_add_account_uid_and_persistent_cart.sql) | Adiciona um UID numérico exclusivo de oito ou mais dígitos às contas e cria o carrinho persistente por usuário e veículo. | Após as migrations anteriores, antes de usar cadastro, login, carrinho ou checkout atualizados. |
+| [`database/migrations/20261102_add_auth_session_version.sql`](../database/migrations/20261102_add_auth_session_version.sql) | Adiciona a versão de autenticação usada para invalidar sessões quando a senha é redefinida. | Aplicada automaticamente junto às migrations de conta na primeira conexão ao banco. |
 
 ### Ordem de instalação local
 
@@ -39,6 +40,9 @@ as migrations alteram um banco que já existe.
    uma vez para adicionar os UIDs às contas existentes e habilitar a persistência
    do carrinho. O carrinho combina os itens da sessão e os da conta no login;
    os itens comprados são removidos do carrinho na mesma transação do pedido.
+8. A coluna `auth_version` é adicionada automaticamente pela aplicação. Quando
+   um administrador redefine uma senha, a versão é incrementada e as sessões
+   anteriores da conta são invalidadas no próximo acesso.
 
 Na hospedagem por FTP, depois do upload de `src/database.php` e
 `src/schemamigrationrunner.php`, essa migration é aplicada automaticamente na

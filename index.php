@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/src/authsession.php';
+validar_sessao_usuario();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

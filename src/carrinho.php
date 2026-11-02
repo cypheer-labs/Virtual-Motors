@@ -6,8 +6,11 @@ use VirtualMotors\Repository\CarrinhoRepository;
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/carrorepository.php';
 require_once __DIR__ . '/carrinhorepository.php';
+require_once __DIR__ . '/authsession.php';
 
 session_start();
+
+validar_sessao_usuario();
 
 $chaveCarrinho = 'virtual_motors_carrinho';
 if (!isset($_SESSION[$chaveCarrinho]) || !is_array($_SESSION[$chaveCarrinho])) {

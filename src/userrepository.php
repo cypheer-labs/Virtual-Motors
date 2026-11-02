@@ -19,7 +19,8 @@ class UserRepository
     public function findByEmail(string $email): ?array
     {
         $stmt = $this->connection->prepare(
-            'SELECT id_usuario AS id, uid, nome, email, senha, tipo_usuario FROM usuario WHERE email = :email LIMIT 1'
+            'SELECT id_usuario AS id, uid, nome, email, senha, tipo_usuario, auth_version '
+            . 'FROM usuario WHERE email = :email LIMIT 1'
         );
         $stmt->execute(['email' => $email]);
 
