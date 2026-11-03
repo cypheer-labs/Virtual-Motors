@@ -133,6 +133,7 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
     <a href="dashboard.php" aria-current="page">Painel</a>
     <a href="produtos.php">Produtos</a>
     <a href="usuarios.php">Usuários</a>
+    <a href="pedidos.php">Pedidos</a>
     <a class="sair" href="../index.php">Voltar à loja</a>
 </nav>
 
@@ -184,7 +185,10 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
     </section>
 
     <section class="admin-section">
-        <div class="admin-section-heading"><h2>Últimos pedidos</h2></div>
+        <div class="admin-section-heading">
+            <h2>Últimos pedidos</h2>
+            <a href="pedidos.php">Gerenciar pedidos</a>
+        </div>
         <?php dashboard_table($recentPedidos, $recentPedidosError, 'Nenhum pedido registrado ainda.'); ?>
     </section>
 </main>

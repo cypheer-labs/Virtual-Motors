@@ -351,6 +351,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
     <a href="dashboard.php">Painel</a>
     <a href="produtos.php">Produtos</a>
     <a href="usuarios.php" aria-current="page">Usuários</a>
+    <a href="pedidos.php">Pedidos</a>
     <a class="sair" href="../index.php">Voltar à loja</a>
 </nav>
 

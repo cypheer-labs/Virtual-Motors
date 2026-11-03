@@ -25,10 +25,51 @@ if (empty($_SESSION['usuario_email']) || empty($_SESSION['usuario_id'])) {
 $pedidos = [];
 $erroBanco = false;
 $uidConta = '';
+$mensagemAcao = match ($_GET['acao'] ?? '') {
+    'cancelado' => 'Pedido cancelado com sucesso.',
+    default => '',
+};
+$erroAcao = false;
+$csrfToken = $_SESSION['compras_csrf_token'] ?? null;
+if (!is_string($csrfToken) || $csrfToken === '') {
+    $csrfToken = bin2hex(random_bytes(32));
+    $_SESSION['compras_csrf_token'] = $csrfToken;
+}
+
 try {
+    $pedidoRepository = new PedidoRepository();
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $tokenEnviado = $_POST['csrf_token'] ?? '';
+        $acao = $_POST['acao'] ?? '';
+        if (!is_string($tokenEnviado) || !hash_equals($csrfToken, $tokenEnviado)) {
+            http_response_code(400);
+            $mensagemAcao = 'Sua sessão expirou. Atualize a página e tente novamente.';
+            $erroAcao = true;
+        } elseif (!is_string($acao) || $acao !== 'cancelar') {
+            http_response_code(400);
+            $mensagemAcao = 'Ação inválida.';
+            $erroAcao = true;
+        } else {
+            $idPedido = filter_var($_POST['id_pedido'] ?? null, FILTER_VALIDATE_INT);
+            if ($idPedido === false || $idPedido === null || $idPedido < 1) {
+                $mensagemAcao = 'Pedido inválido.';
+                $erroAcao = true;
+            } else {
+                $idUsuario = (int) $_SESSION['usuario_id'];
+                if (!$pedidoRepository->cancelarPorUsuario((int) $idPedido, $idUsuario)) {
+                    $mensagemAcao = 'Este pedido não existe ou não pode mais ser cancelado.';
+                    $erroAcao = true;
+                } else {
+                    header('Location: minhas-compras.php?acao=cancelado');
+                    exit;
+                }
+            }
+        }
+    }
+
     $uidConta = (new UserRepository())->findUidById((int) $_SESSION['usuario_id']) ?? '';
     $_SESSION['usuario_uid'] = $uidConta;
-    $pedidos = (new PedidoRepository())->buscarPorUsuario((int) $_SESSION['usuario_id']);
+    $pedidos = $pedidoRepository->buscarPorUsuario((int) $_SESSION['usuario_id']);
     $idsCarros = [];
     foreach ($pedidos as $pedido) {
         foreach ($pedido['itens'] as $item) {
@@ -70,6 +111,15 @@ $headerPaginaCompras = true;
             <p>Acompanhe seus pedidos, itens e dados de entrega.</p>
             <p class="profile-uid">Compras vinculadas ao UID: <strong><?= htmlspecialchars($uidConta, ENT_QUOTES, 'UTF-8') ?></strong></p>
         </div>
+
+        <?php if ($mensagemAcao !== '') : ?>
+            <p
+                class="cart-message<?= $erroAcao ? ' cart-error' : '' ?>"
+                role="<?= $erroAcao ? 'alert' : 'status' ?>"
+            >
+                <?= htmlspecialchars($mensagemAcao, ENT_QUOTES, 'UTF-8') ?>
+            </p>
+        <?php endif; ?>
 
         <?php if ($erroBanco) : ?>
             <p class="cart-message cart-error" role="alert">Não foi possível carregar seu histórico. Tente novamente em instantes.</p>
@@ -133,6 +183,28 @@ $headerPaginaCompras = true;
                             <span>Total do pedido</span>
                             <strong>R$ <?= number_format((float) $pedido['valor_total'], 2, ',', '.') ?></strong>
                         </footer>
+                        <div class="purchase-order-actions">
+                            <?php if (!in_array($statusPedido, ['Concluído', 'Cancelado'], true)) : ?>
+                                <form
+                                    method="post"
+                                    action="minhas-compras.php"
+                                    onsubmit="return confirm('Cancelar este pedido?');"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>"
+                                    >
+                                    <input type="hidden" name="acao" value="cancelar">
+                                    <input
+                                        type="hidden"
+                                        name="id_pedido"
+                                        value="<?= (int) $pedido['id_pedido'] ?>"
+                                    >
+                                    <button class="button button-outline" type="submit">Cancelar pedido</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             </div>

@@ -1346,6 +1346,14 @@ select {
     font-size: 19px;
 }
 
+.purchase-order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 22px 18px;
+}
+
 .checkout-layout {
     display: grid;
     grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.8fr);
@@ -2237,6 +2245,10 @@ select {
 
     .purchase-order-total {
         align-items: center;
+    }
+
+    .purchase-order-actions {
+        padding: 0 16px 16px;
     }
 
     .checkout-form,
