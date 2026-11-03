@@ -4,8 +4,14 @@ use VirtualMotors\Repository\CarroRepository;
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/carrorepository.php';
+require_once __DIR__ . '/authsession.php';
 
 session_start();
+
+if (!validar_sessao_usuario() && empty($_GET['visualizacao'])) {
+    header('Location: login.php');
+    exit;
+}
 
 $modoVisualizacao = ($_GET['visualizacao'] ?? '') === '1';
 $temaVisualizacao = in_array($_GET['tema'] ?? '', ['light', 'dark'], true)
@@ -28,9 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['acao'] ?? '') === 'comprar
 }
 
 if (empty($_SESSION['usuario_email'])) {
+    $_SESSION['virtual_motors_pagamento_pendente'] = true;
     header('Location: login.php');
     exit;
 }
+unset($_SESSION['virtual_motors_pagamento_pendente']);
 
 if (!$modoVisualizacao && isset($_SESSION[$chaveCompraDireta])) {
     $idCarroDireto = filter_var($_SESSION[$chaveCompraDireta], FILTER_VALIDATE_INT);

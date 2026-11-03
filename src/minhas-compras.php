@@ -1,11 +1,21 @@
 <?php
 
 use VirtualMotors\Repository\PedidoRepository;
+use VirtualMotors\Repository\CarroRepository;
+use VirtualMotors\Repository\UserRepository;
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/pedidorepository.php';
+require_once __DIR__ . '/carrorepository.php';
+require_once __DIR__ . '/userrepository.php';
+require_once __DIR__ . '/authsession.php';
 
 session_start();
+
+if (!validar_sessao_usuario()) {
+    header('Location: login.php');
+    exit;
+}
 
 if (empty($_SESSION['usuario_email']) || empty($_SESSION['usuario_id'])) {
     header('Location: login.php');
@@ -14,8 +24,22 @@ if (empty($_SESSION['usuario_email']) || empty($_SESSION['usuario_id'])) {
 
 $pedidos = [];
 $erroBanco = false;
+$uidConta = '';
 try {
+    $uidConta = (new UserRepository())->findUidById((int) $_SESSION['usuario_id']) ?? '';
+    $_SESSION['usuario_uid'] = $uidConta;
     $pedidos = (new PedidoRepository())->buscarPorUsuario((int) $_SESSION['usuario_id']);
+    $idsCarros = [];
+    foreach ($pedidos as $pedido) {
+        foreach ($pedido['itens'] as $item) {
+            $idsCarros[] = (int) $item['id_carro'];
+        }
+    }
+
+    $imagensCarros = [];
+    foreach ((new CarroRepository())->buscarPorIds($idsCarros) as $carro) {
+        $imagensCarros[(int) $carro['id_carro']] = $carro['imagem'];
+    }
 } catch (PDOException $erro) {
     error_log($erro->getMessage());
     http_response_code(503);
@@ -44,28 +68,33 @@ $headerPaginaCompras = true;
             <span class="section-tag">ÁREA DO CLIENTE</span>
             <h1>Minhas compras</h1>
             <p>Acompanhe seus pedidos, itens e dados de entrega.</p>
+            <p class="profile-uid">Compras vinculadas ao UID: <strong><?= htmlspecialchars($uidConta, ENT_QUOTES, 'UTF-8') ?></strong></p>
         </div>
 
         <?php if ($erroBanco) : ?>
             <p class="cart-message cart-error" role="alert">Não foi possível carregar seu histórico. Tente novamente em instantes.</p>
         <?php elseif ($pedidos === []) : ?>
             <section class="purchase-history-empty">
-                <h2>Nenhuma compra por aqui ainda</h2>
-                <p>Quando você confirmar um pedido, ele aparecerá nesta página com todos os detalhes.</p>
+                <h2>Nenhuma compra encontrada</h2>
+                <p>Suas compras aparecerão aqui após a conclusão do pedido.</p>
                 <a class="button button-primary" href="../index.php#veiculos">Explorar veículos</a>
             </section>
         <?php else : ?>
             <div class="purchase-history-list">
                 <?php foreach ($pedidos as $pedido) : ?>
+                    <?php $statusPedido = str_replace(' (demonstração)', '', $pedido['status_pedido']); ?>
                     <article class="purchase-order" aria-labelledby="order-<?= (int) $pedido['id_pedido'] ?>">
                         <header class="purchase-order-header">
                             <div>
                                 <span class="purchase-order-label">Pedido #<?= (int) $pedido['id_pedido'] ?></span>
+                                <span class="purchase-order-label">UID <?= htmlspecialchars($pedido['uid_usuario'], ENT_QUOTES, 'UTF-8') ?></span>
                                 <h2 id="order-<?= (int) $pedido['id_pedido'] ?>">
                                     <?= htmlspecialchars(date('d/m/Y \à\s H:i', strtotime($pedido['criado_em'])), ENT_QUOTES, 'UTF-8') ?>
                                 </h2>
                             </div>
-                            <span class="purchase-order-status"><?= htmlspecialchars($pedido['status_pedido'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <span class="purchase-order-status">
+                                <?= htmlspecialchars($statusPedido, ENT_QUOTES, 'UTF-8') ?>
+                            </span>
                         </header>
 
                         <div class="purchase-order-content">
@@ -73,6 +102,12 @@ $headerPaginaCompras = true;
                                 <h3>Itens comprados</h3>
                                 <?php foreach ($pedido['itens'] as $item) : ?>
                                     <div class="purchase-order-item">
+                                        <img
+                                            class="purchase-order-item-image"
+                                            src="<?= htmlspecialchars($imagensCarros[$item['id_carro']] ?? '../assets/image.png', ENT_QUOTES, 'UTF-8') ?>"
+                                            alt="Foto do veículo <?= htmlspecialchars($item['nome_carro'] ?: 'comprado', ENT_QUOTES, 'UTF-8') ?>"
+                                            loading="lazy"
+                                        >
                                         <div>
                                             <strong><?= htmlspecialchars($item['nome_carro'] ?: 'Veículo', ENT_QUOTES, 'UTF-8') ?></strong>
                                             <span><?= htmlspecialchars($item['jogo_origem'] ?: 'Origem não informada', ENT_QUOTES, 'UTF-8') ?> · <?= (int) $item['quantidade'] ?> unidade(s)</span>

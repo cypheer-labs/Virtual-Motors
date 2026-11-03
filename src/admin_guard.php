@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use VirtualMotors\Core\Database;
 
+require_once __DIR__ . '/authsession.php';
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -17,6 +19,11 @@ function admin_pdo(): PDO
 
 function exigir_admin(): void
 {
+    if (!validar_sessao_usuario()) {
+        header('Location: ../src/login.php');
+        exit;
+    }
+
     $idUsuario = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);
 
     if ($idUsuario === false || $idUsuario === null || $idUsuario < 1) {

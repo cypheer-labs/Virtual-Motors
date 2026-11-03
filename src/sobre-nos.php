@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/authsession.php';
+validar_sessao_usuario();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -28,58 +30,64 @@ session_start();
 
     <main>
         <section class="about-hero" id="inicio">
-            <div class="container about-hero-content">
-                <span class="hero-tag">VIRTUAL MOTORS</span>
-                <h1>Sobre <span>nós.</span></h1>
-                <p>Mais do que carros, entregamos confiança para você seguir em frente.</p>
-
-                <aside class="about-project-note" aria-label="Informação sobre o projeto">
-                    <span class="about-project-mark" aria-hidden="true">A</span>
-                    <div>
-                        <h2>Projeto acadêmico</h2>
-                        <p>
-                            A Virtual Motors é uma empresa fictícia, criada sob medida exclusivamente
-                            para fins acadêmicos. Nomes, serviços, números e informações apresentados
-                            neste site são parte de uma simulação.
-                        </p>
+            <div class="container about-hero-layout">
+                <div class="about-hero-content">
+                    <span class="about-eyebrow"><span aria-hidden="true"></span> CARROS · CULTURA · EXPERIÊNCIA</span>
+                    <h1>Para quem vive o universo automotivo <span>em outra marcha.</span></h1>
+                    <p>
+                        A Virtual Motors conecta carros marcantes, cultura gamer e uma experiência
+                        digital feita para quem sabe o que procura.
+                    </p>
+                    <div class="about-hero-actions">
+                        <a class="button button-primary" href="../index.php#contato">Falar com a equipe</a>
+                        <a class="about-text-link" href="#quem-somos">
+                            Conheça a Virtual Motors <span aria-hidden="true">↓</span>
+                        </a>
                     </div>
-                </aside>
+                    <aside class="about-project-note" aria-label="Aviso sobre o projeto">
+                        <span class="about-project-mark" aria-hidden="true">i</span>
+                        <p>
+                            <strong>Projeto acadêmico.</strong>
+                            A Virtual Motors é uma marca fictícia; pedidos e pagamentos são apenas demonstrativos.
+                        </p>
+                    </aside>
+                </div>
+
+                <figure class="about-hero-visual">
+                    <img
+                        src="https://gamebanana.com/mods/embeddables/642666?variant=sd_image"
+                        alt="La Hai-Rider, veículo de Wuthering Waves disponível no catálogo Virtual Motors"
+                        fetchpriority="high"
+                    >
+                    <figcaption>
+                        <span>DO UNIVERSO DE WUTHERING WAVES</span>
+                        <strong>La Hai-Rider</strong>
+                    </figcaption>
+                </figure>
             </div>
         </section>
 
         <section class="about-story" id="quem-somos">
-            <div class="container about-story-grid">
-                <div class="about-story-copy">
+            <div class="container">
+                <div class="about-story-heading">
                     <span class="section-tag">QUEM SOMOS</span>
-                    <h2>Paixão por carros. Respeito por <span>pessoas.</span></h2>
-                    <p class="about-story-lead">
-                        A Virtual Motors nasceu para tornar a compra de um veículo mais simples,
-                        segura e transparente.
-                    </p>
-                    <p>
-                        Neste projeto fictício, imaginamos uma empresa que reúne uma seleção
-                        cuidadosa de veículos e uma equipe preparada para entender o que cada
-                        cliente realmente procura. Nossa proposta é transformar dúvidas em boas
-                        escolhas.
-                    </p>
-                    <p>
-                        Da pesquisa ao pós-venda, cada etapa foi pensada para transmitir
-                        confiança, qualidade e proximidade — valores essenciais para uma marca
-                        automotiva moderna.
-                    </p>
+                    <span class="about-story-index">01 — NOSSA IDEIA</span>
                 </div>
-
-                <figure class="about-story-visual">
-                    <img
-                        src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=85"
-                        alt="Carro esportivo em uma garagem"
-                        loading="lazy"
-                    >
-                    <figcaption class="about-since-card">
-                        <span>DESDE 2025</span>
-                        <p>Uma marca fictícia com grandes ideias.</p>
-                    </figcaption>
-                </figure>
+                <div class="about-story-grid">
+                    <h2>Não é só sobre chegar. É sobre <span>o que move você.</span></h2>
+                    <div class="about-story-copy">
+                        <p class="about-story-lead">
+                            A Virtual Motors nasceu da mistura entre paixão por carros e o universo
+                            dos jogos onde cada máquina tem uma história.
+                        </p>
+                        <p>
+                            Criamos uma vitrine digital para reunir modelos icônicos de diferentes
+                            mundos e tornar a descoberta de cada veículo simples, visual e envolvente.
+                            Um projeto acadêmico com personalidade própria — feito para quem repara
+                            nos detalhes antes de acelerar.
+                        </p>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -87,35 +95,35 @@ session_start();
             <div class="container">
                 <div class="about-values-heading">
                     <div>
-                        <span class="section-tag">O QUE NOS MOVE</span>
-                        <h2>Nossos valores<br>estão na <span>direção.</span></h2>
+                        <span class="about-story-index">02 — NOSSO JEITO</span>
+                        <h2>Uma experiência com <span>identidade.</span></h2>
                     </div>
                     <p>
-                        Criamos a personalidade da Virtual Motors sobre três pilares que fortalecem
-                        sua proposta e a sua comunicação.
+                        Cada parte da Virtual Motors foi pensada para aproximar a paixão por
+                        automobilismo de uma jornada digital clara e agradável.
                     </p>
                 </div>
 
                 <div class="about-values-grid">
                     <article class="about-value">
-                        <span class="about-value-number">01</span>
+                        <span class="about-value-number">01 <span>— ESSÊNCIA</span></span>
                         <div class="about-value-rule" aria-hidden="true"></div>
-                        <h3>Confiança</h3>
-                        <p>Negociações claras, veículos verificados e respeito em cada conversa.</p>
+                        <h3>Paixão em cada detalhe</h3>
+                        <p>Uma curadoria que celebra design, desempenho e carros que deixam marca.</p>
                     </article>
 
                     <article class="about-value">
-                        <span class="about-value-number">02</span>
+                        <span class="about-value-number">02 <span>— CONEXÃO</span></span>
                         <div class="about-value-rule" aria-hidden="true"></div>
-                        <h3>Qualidade</h3>
-                        <p>Uma seleção criteriosa para oferecer segurança, desempenho e procedência.</p>
+                        <h3>Do jogo para a garagem</h3>
+                        <p>Modelos de universos virtuais apresentados com contexto e personalidade.</p>
                     </article>
 
                     <article class="about-value">
-                        <span class="about-value-number">03</span>
+                        <span class="about-value-number">03 <span>— JORNADA</span></span>
                         <div class="about-value-rule" aria-hidden="true"></div>
-                        <h3>Experiência</h3>
-                        <p>Atendimento próximo e uma jornada simples do primeiro contato à entrega.</p>
+                        <h3>Feito para descobrir</h3>
+                        <p>Busca intuitiva, informação organizada e uma experiência sem complicação.</p>
                     </article>
                 </div>
             </div>

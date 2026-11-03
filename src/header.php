@@ -4,24 +4,33 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+require_once __DIR__ . '/authsession.php';
+validar_sessao_usuario();
+
 $headerBasePath = $headerBasePath ?? '../';
 $headerPaginaInicial = $headerPaginaInicial ?? false;
 $headerEmail = $_SESSION['usuario_email'] ?? null;
 $headerTipoUsuario = $_SESSION['tipo_usuario'] ?? null;
 $headerNome = $_SESSION['usuario_nome'] ?? null;
-if ($headerEmail !== null && (!is_string($headerNome) || $headerNome === '')) {
+if (
+    $headerEmail !== null
+    && ((!is_string($headerNome) || $headerNome === '') || !isset($_SESSION['usuario_uid']))
+) {
     $headerIdUsuario = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);
     if ($headerIdUsuario !== false && $headerIdUsuario !== null && $headerIdUsuario > 0) {
         try {
             require_once __DIR__ . '/database.php';
             $consultaNome = \VirtualMotors\Core\Database::getConnection()->prepare(
-                'SELECT nome FROM usuario WHERE id_usuario = :id_usuario LIMIT 1'
+                'SELECT nome, uid FROM usuario WHERE id_usuario = :id_usuario LIMIT 1'
             );
             $consultaNome->execute(['id_usuario' => $headerIdUsuario]);
-            $nomeEncontrado = $consultaNome->fetchColumn();
-            if (is_string($nomeEncontrado) && $nomeEncontrado !== '') {
-                $headerNome = $nomeEncontrado;
-                $_SESSION['usuario_nome'] = $nomeEncontrado;
+            $usuarioEncontrado = $consultaNome->fetch(PDO::FETCH_ASSOC);
+            if (is_array($usuarioEncontrado)) {
+                if (is_string($usuarioEncontrado['nome']) && $usuarioEncontrado['nome'] !== '') {
+                    $headerNome = $usuarioEncontrado['nome'];
+                    $_SESSION['usuario_nome'] = $usuarioEncontrado['nome'];
+                }
+                $_SESSION['usuario_uid'] = (string) $usuarioEncontrado['uid'];
             }
         } catch (\PDOException $exception) {
             error_log($exception->getMessage());
@@ -64,9 +73,6 @@ $headerCompras = $headerBasePath . 'src/minhas-compras.php';
             >Sobre nós</a>
             <a href="<?= htmlspecialchars($headerContato, ENT_QUOTES, 'UTF-8') ?>">Contato</a>
             <a href="<?= htmlspecialchars($headerCarrinhoHref, ENT_QUOTES, 'UTF-8') ?>">Carrinho (<?= $headerQuantidadeCarrinho ?>)</a>
-            <?php if ($headerEmail !== null) : ?>
-                <a href="<?= htmlspecialchars($headerCompras, ENT_QUOTES, 'UTF-8') ?>" <?= !empty($headerPaginaCompras) ? 'aria-current="page"' : '' ?>>Minhas compras</a>
-            <?php endif; ?>
         </nav>
 
         <div class="user-menu-right">
@@ -83,6 +89,10 @@ $headerCompras = $headerBasePath . 'src/minhas-compras.php';
                     </summary>
                     <div class="user-menu-dropdown">
                         <a href="<?= htmlspecialchars($headerPerfil, ENT_QUOTES, 'UTF-8') ?>">Meu perfil</a>
+                        <a
+                            href="<?= htmlspecialchars($headerCompras, ENT_QUOTES, 'UTF-8') ?>"
+                            <?= !empty($headerPaginaCompras) ? 'aria-current="page"' : '' ?>
+                        >Minhas compras</a>
                         <a class="logout-link" href="<?= htmlspecialchars($headerLogout, ENT_QUOTES, 'UTF-8') ?>">Sair</a>
                     </div>
                 </details>
