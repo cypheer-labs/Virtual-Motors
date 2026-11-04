@@ -360,6 +360,10 @@ validar_sessao_usuario();
                     Sobre nós
                 </a>
 
+                <a href="./src/termos-de-uso.php">
+                    Termos de uso
+                </a>
+
                 <a href="#veiculos">
                     Veículos
                 </a>

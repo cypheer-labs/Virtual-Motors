@@ -220,6 +220,7 @@ $headerPaginaCompras = true;
             <div class="footer-column">
                 <h4>Empresa</h4>
                 <a href="sobre-nos.php">Sobre nós</a>
+                <a href="termos-de-uso.php">Termos de uso</a>
                 <a href="../index.php#veiculos">Veículos</a>
                 <a href="../index.php#contato">Contato</a>
             </div>
