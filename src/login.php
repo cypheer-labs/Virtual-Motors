@@ -30,9 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['usuario_nome'] = $usuario['nome'];
                 $_SESSION['usuario_uid'] = (string) $usuario['uid'];
                 $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
-                $_SESSION['usuario_foto_perfil'] = $usuario['foto_perfil'] ?? null;
-                $_SESSION['usuario_banner_perfil'] = $usuario['banner_perfil'] ?? null;
-                $_SESSION['usuario_perfil_carregado'] = true;
                 $_SESSION['auth_version'] = (int) $usuario['auth_version'];
                 try {
                     $carrinhoRepository = new \VirtualMotors\Repository\CarrinhoRepository();

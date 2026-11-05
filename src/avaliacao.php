@@ -5,26 +5,19 @@ use VirtualMotors\Repository\AvaliacaoRepository;
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/avaliacaorepository.php';
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+session_start();
 
 $idUsuario = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);
 $usuarioAutenticado = $idUsuario !== false && $idUsuario !== null && $idUsuario > 0;
 $idPedidoEnviado = $_POST['pedido'] ?? $_GET['pedido'] ?? null;
-$idPedidoValidado = filter_var($idPedidoEnviado, FILTER_VALIDATE_INT);
-$idPedido = $idPedidoValidado !== false && $idPedidoValidado !== null && $idPedidoValidado > 0
-    ? $idPedidoValidado
-    : null;
+$idPedido = filter_var($idPedidoEnviado, FILTER_VALIDATE_INT);
+$idPedido = $idPedido !== false && $idPedido !== null && $idPedido > 0 ? $idPedido : null;
 $mensagemErro = null;
 $mensagemSucesso = $_SESSION['virtual_motors_avaliacao_mensagem'] ?? null;
 $compraConfirmada = !empty($_SESSION['virtual_motors_pagamento_sucesso']);
-unset(
-    $_SESSION['virtual_motors_avaliacao_mensagem'],
-    $_SESSION['virtual_motors_pagamento_sucesso']
-);
+unset($_SESSION['virtual_motors_avaliacao_mensagem'], $_SESSION['virtual_motors_pagamento_sucesso']);
 $chaveCsrf = 'virtual_motors_avaliacao_csrf';
-if (!isset($_SESSION[$chaveCsrf]) || !is_string($_SESSION[$chaveCsrf])) {
+if (!isset($_SESSION[$chaveCsrf])) {
     $_SESSION[$chaveCsrf] = bin2hex(random_bytes(32));
 }
 
@@ -64,28 +57,19 @@ try {
             } elseif ($avaliacaoDoPedido !== null) {
                 $mensagemErro = 'Este pedido já foi avaliado.';
             } else {
-                try {
-                    $repositorio->criar($idPedido, (int) $idUsuario, $estrelasEnviadas, $descricao);
-                    $_SESSION['virtual_motors_avaliacao_mensagem'] = 'Obrigado por compartilhar sua avaliação.';
-                    header('Location: avaliacao.php?pedido=' . $idPedido);
-                    exit;
-                } catch (PDOException $erro) {
-                    if (($erro->errorInfo[1] ?? null) !== 1062) {
-                        throw $erro;
-                    }
-
-                    $mensagemErro = 'Este pedido já foi avaliado.';
-                    $avaliacaoDoPedido = $repositorio->buscarPorPedido($idPedido);
-                }
+                $repositorio->criar($idPedido, (int) $idUsuario, $estrelasEnviadas, $descricao);
+                $_SESSION['virtual_motors_avaliacao_mensagem'] = 'Obrigado por compartilhar sua avaliação.';
+                header('Location: avaliacao.php?pedido=' . $idPedido);
+                exit;
             }
         }
     }
 
-    if ($idPedido !== null && $usuarioAutenticado && $pedidoConfirmado === null) {
+    if ($idPedido !== null && $usuarioAutenticado) {
         $pedidoConfirmado = $repositorio->buscarPedidoConfirmado($idPedido, (int) $idUsuario);
-    }
-    if ($pedidoConfirmado !== null && $avaliacaoDoPedido === null) {
-        $avaliacaoDoPedido = $repositorio->buscarPorPedido($idPedido);
+        if ($pedidoConfirmado !== null) {
+            $avaliacaoDoPedido = $repositorio->buscarPorPedido($idPedido);
+        }
     }
 
     $avaliacoes = $repositorio->listarTodas();
@@ -102,11 +86,11 @@ $headerPaginaAvaliacoes = true;
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Leia e compartilhe avaliações de clientes da Virtual Motors.">
     <title>Avaliações - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=review-details">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body>
@@ -123,9 +107,9 @@ $headerPaginaAvaliacoes = true;
             <p class="cart-message cart-success" role="status">Compra #<?= (int) ($_SESSION['virtual_motors_ultimo_pedido'] ?? 0) ?> confirmada. Obrigado pela preferência!</p>
         <?php endif; ?>
 
-        <?php if (is_string($mensagemSucesso) && $mensagemSucesso !== '') : ?>
+        <?php if ($mensagemSucesso !== null) : ?>
             <p class="cart-message cart-success" role="status">
-                <?= htmlspecialchars($mensagemSucesso, ENT_QUOTES, 'UTF-8') ?>
+                <?= htmlspecialchars((string) $mensagemSucesso, ENT_QUOTES, 'UTF-8') ?>
             </p>
         <?php endif; ?>
 
@@ -164,6 +148,7 @@ $headerPaginaAvaliacoes = true;
                         </label>
                     <?php endfor; ?>
                 </fieldset>
+
                 <label class="review-description-label" for="reviewDescription">Conte brevemente como foi sua compra</label>
                 <textarea
                     class="review-description"
@@ -172,7 +157,7 @@ $headerPaginaAvaliacoes = true;
                     minlength="5"
                     maxlength="300"
                     required
-                ><?= htmlspecialchars(is_string($_POST['descricao'] ?? null) ? $_POST['descricao'] : '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                ></textarea>
                 <p class="review-form-note">Até 300 caracteres.</p>
                 <button class="button button-primary" type="submit">Enviar avaliação</button>
             </form>
@@ -191,23 +176,7 @@ $headerPaginaAvaliacoes = true;
                     <?php $nota = (int) $avaliacao['estrelas']; ?>
                     <article class="review-item">
                         <header>
-                            <div class="review-author">
-                                <a
-                                    class="review-author-avatar"
-                                    href="perfil.php?id=<?= (int) $avaliacao['id_usuario'] ?>"
-                                    aria-label="Ver perfil de <?= htmlspecialchars($avaliacao['nome'], ENT_QUOTES, 'UTF-8') ?>"
-                                >
-                                    <?php if (is_string($avaliacao['foto_perfil'] ?? null) && $avaliacao['foto_perfil'] !== '') : ?>
-                                        <img
-                                            src="<?= htmlspecialchars('../public/' . $avaliacao['foto_perfil'], ENT_QUOTES, 'UTF-8') ?>"
-                                            alt=""
-                                        >
-                                    <?php else : ?>
-                                        <span aria-hidden="true"><?= htmlspecialchars(strtoupper(substr($avaliacao['nome'], 0, 1)), ENT_QUOTES, 'UTF-8') ?></span>
-                                    <?php endif; ?>
-                                </a>
-                                <h3><?= htmlspecialchars($avaliacao['nome'], ENT_QUOTES, 'UTF-8') ?></h3>
-                            </div>
+                            <h3><?= htmlspecialchars($avaliacao['nome'], ENT_QUOTES, 'UTF-8') ?></h3>
                             <span class="review-rating" aria-label="<?= $nota ?> de 5 estrelas">
                                 <?= str_repeat('★', $nota) . str_repeat('☆', 5 - $nota) ?>
                             </span>
@@ -231,6 +200,7 @@ $headerPaginaAvaliacoes = true;
             <?php endif; ?>
         </section>
     </main>
+
     <script src="../public/script.js" defer></script>
 </body>
 </html>

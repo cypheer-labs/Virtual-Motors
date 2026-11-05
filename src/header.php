@@ -37,33 +37,9 @@ if (
         }
     }
 }
-$headerFotoPerfil = $_SESSION['usuario_foto_perfil'] ?? null;
-if ($headerEmail !== null && empty($_SESSION['usuario_perfil_carregado'])) {
-    $headerIdUsuario = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);
-    if ($headerIdUsuario !== false && $headerIdUsuario !== null && $headerIdUsuario > 0) {
-        try {
-            require_once __DIR__ . '/database.php';
-            $consultaPerfil = \VirtualMotors\Core\Database::getConnection()->prepare(
-                'SELECT nome, foto_perfil FROM usuario WHERE id_usuario = :id_usuario LIMIT 1'
-            );
-            $consultaPerfil->execute(['id_usuario' => $headerIdUsuario]);
-            $perfilEncontrado = $consultaPerfil->fetch();
-            if (is_array($perfilEncontrado)) {
-                $headerNome = $perfilEncontrado['nome'];
-                $headerFotoPerfil = $perfilEncontrado['foto_perfil'];
-                $_SESSION['usuario_nome'] = $headerNome;
-                $_SESSION['usuario_foto_perfil'] = $headerFotoPerfil;
-            }
-        } catch (\PDOException $exception) {
-            error_log($exception->getMessage());
-        }
-        $_SESSION['usuario_perfil_carregado'] = true;
-    }
-}
 $headerNome = is_string($headerNome) && $headerNome !== ''
     ? $headerNome
     : ($headerEmail !== null ? explode('@', (string) $headerEmail)[0] : null);
-$headerFotoPerfil = is_string($headerFotoPerfil) && $headerFotoPerfil !== '' ? $headerFotoPerfil : null;
 $headerCarrinho = $_SESSION['virtual_motors_carrinho'] ?? [];
 $headerPaginaSobreNos = $headerPaginaSobreNos ?? false;
 $headerQuantidadeCarrinho = is_array($headerCarrinho)
@@ -73,7 +49,6 @@ $headerInicio = $headerPaginaInicial ? '#inicio' : $headerBasePath . 'index.php#
 $headerVeiculos = $headerPaginaInicial ? '#veiculos' : $headerBasePath . 'index.php#veiculos';
 $headerSobre = $headerBasePath . 'src/sobre-nos.php';
 $headerContato = $headerPaginaInicial ? '#contato' : $headerBasePath . 'index.php#contato';
-$headerAvaliacoes = $headerBasePath . 'src/avaliacao.php';
 $headerCarrinhoHref = $headerPaginaInicial || $headerPaginaSobreNos
     ? $headerBasePath . 'src/carrinho.php'
     : 'carrinho.php';
@@ -100,27 +75,18 @@ $headerAvaliacoes = $headerBasePath . 'src/avaliacao.php';
             <a href="<?= htmlspecialchars($headerContato, ENT_QUOTES, 'UTF-8') ?>">Contato</a>
             <a href="<?= htmlspecialchars($headerCarrinhoHref, ENT_QUOTES, 'UTF-8') ?>">Carrinho (<?= $headerQuantidadeCarrinho ?>)</a>
             <a href="<?= htmlspecialchars($headerAvaliacoes, ENT_QUOTES, 'UTF-8') ?>" <?= !empty($headerPaginaAvaliacoes) ? 'aria-current="page"' : '' ?>>Avaliações</a>
-            <?php if ($headerEmail !== null) : ?>
-                <a href="<?= htmlspecialchars($headerCompras, ENT_QUOTES, 'UTF-8') ?>" <?= !empty($headerPaginaCompras) ? 'aria-current="page"' : '' ?>>Minhas compras</a>
-            <?php endif; ?>
         </nav>
 
         <div class="user-menu-right">
             <?php if ($headerEmail !== null) : ?>
                 <details class="user-menu">
                     <summary class="user-profile" aria-label="Abrir menu do perfil">
-                        <a class="profile-avatar-link" href="<?= htmlspecialchars($headerPerfil, ENT_QUOTES, 'UTF-8') ?>" aria-label="Personalizar perfil">
-                            <?php if ($headerFotoPerfil !== null) : ?>
-                                <img class="user-avatar" src="<?= htmlspecialchars($headerBasePath . 'public/' . $headerFotoPerfil, ENT_QUOTES, 'UTF-8') ?>" alt="">
-                            <?php else : ?>
-                                <svg class="user-avatar" viewBox="0 0 24 24" aria-hidden="true">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <circle cx="12" cy="9" r="3"></circle>
-                                    <path d="M6.5 19a5.5 5.5 0 0 1 11 0"></path>
-                                </svg>
-                            <?php endif; ?>
-                        </a>
-                        <span class="welcome-text header-profile-name"><?= htmlspecialchars($headerNome, ENT_QUOTES, 'UTF-8') ?></span>
+                        <svg class="user-avatar" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="9" r="3"></circle>
+                            <path d="M6.5 19a5.5 5.5 0 0 1 11 0"></path>
+                        </svg>
+                        <span class="welcome-text">Olá, <?= htmlspecialchars($headerNome, ENT_QUOTES, 'UTF-8') ?></span>
                         <span class="user-menu-caret" aria-hidden="true">▾</span>
                     </summary>
                     <div class="user-menu-dropdown">

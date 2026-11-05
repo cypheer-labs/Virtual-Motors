@@ -19,8 +19,7 @@ class UserRepository
     public function findByEmail(string $email): ?array
     {
         $stmt = $this->connection->prepare(
-            'SELECT id_usuario AS id, uid, nome, email, senha, tipo_usuario, auth_version, '
-            . 'foto_perfil, banner_perfil '
+            'SELECT id_usuario AS id, uid, nome, email, senha, tipo_usuario, auth_version '
             . 'FROM usuario WHERE email = :email LIMIT 1'
         );
         $stmt->execute(['email' => $email]);
@@ -28,42 +27,6 @@ class UserRepository
         $usuario = $stmt->fetch();
 
         return $usuario ?: null;
-    }
-
-    public function findProfileById(int $id): ?array
-    {
-        $stmt = $this->connection->prepare(
-            'SELECT nome, foto_perfil, banner_perfil, bio_perfil '
-            . 'FROM usuario WHERE id_usuario = :id LIMIT 1'
-        );
-        $stmt->execute(['id' => $id]);
-
-        $perfil = $stmt->fetch();
-
-        return $perfil ?: null;
-    }
-
-    public function updateProfile(
-        int $id,
-        string $nome,
-        string $bioPerfil,
-        ?string $fotoPerfil,
-        ?string $bannerPerfil
-    ): bool {
-        $stmt = $this->connection->prepare(
-            'UPDATE usuario SET nome = :nome, bio_perfil = :bio_perfil, '
-            . 'foto_perfil = COALESCE(:foto_perfil, foto_perfil), '
-            . 'banner_perfil = COALESCE(:banner_perfil, banner_perfil) '
-            . 'WHERE id_usuario = :id'
-        );
-
-        return $stmt->execute([
-            'nome' => $nome,
-            'bio_perfil' => $bioPerfil,
-            'foto_perfil' => $fotoPerfil,
-            'banner_perfil' => $bannerPerfil,
-            'id' => $id,
-        ]);
     }
 
     public function emailExists(string $email): bool

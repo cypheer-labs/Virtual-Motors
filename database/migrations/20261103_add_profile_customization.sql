@@ -1,4 +1,0 @@
-ALTER TABLE usuario
-    ADD COLUMN foto_perfil VARCHAR(255) DEFAULT NULL,
-    ADD COLUMN cor_nome CHAR(7) NOT NULL DEFAULT '#ffffff',
-    ADD COLUMN banner_perfil VARCHAR(255) DEFAULT NULL;
