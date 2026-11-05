@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION[$chavePedidoAutorizado]
             );
             $_SESSION[$chaveSucesso] = true;
-            header('Location: qrcode.php');
+            header('Location: avaliacao.php?pedido=' . $idPedido);
             exit;
         } catch (\Throwable $erro) {
             error_log($erro->getMessage());
