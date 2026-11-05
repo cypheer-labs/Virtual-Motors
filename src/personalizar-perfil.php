@@ -129,13 +129,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erroBanco && $perfil !== null) {
                 try {
                     $caminhoFoto = $arquivosPreparados['foto_perfil']['caminho'] ?? null;
                     $caminhoBanner = $arquivosPreparados['banner_perfil']['caminho'] ?? null;
-                    if (!$usuarioRepository->updateProfile(
-                        $idUsuario,
-                        $nome,
-                        $bio,
-                        $caminhoFoto,
-                        $caminhoBanner
-                    )) {
+                    if (
+                        !$usuarioRepository->updateProfile(
+                            $idUsuario,
+                            $nome,
+                            $bio,
+                            $caminhoFoto,
+                            $caminhoBanner
+                        )
+                    ) {
                         throw new RuntimeException('Não foi possível atualizar o perfil.');
                     }
                     $_SESSION['usuario_nome'] = $nome;
