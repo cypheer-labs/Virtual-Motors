@@ -106,7 +106,7 @@ $headerPaginaAvaliacoes = true;
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Leia e compartilhe avaliações de clientes da Virtual Motors.">
     <title>Avaliações - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body>

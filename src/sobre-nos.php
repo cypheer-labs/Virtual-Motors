@@ -15,7 +15,7 @@ validar_sessao_usuario();
         name="description"
         content="Conheça a Virtual Motors, nosso propósito e os valores que orientam cada experiência."
     >
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <link rel="icon" href="../assets/vm.png" type="image/png" sizes="2048x2048">
     <link rel="apple-touch-icon" href="../assets/vm.png" type="image/png" sizes="2048x2048">
     <link rel="shortcut icon" href="../assets/vm.png" type="image/png" sizes="2048x2048">

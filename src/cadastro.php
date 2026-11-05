@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="icon" href="../assets/vm.png" type="image/png" sizes="2048x2048">
     <link rel="apple-touch-icon" href="../assets/vm.png" type="image/png" sizes="2048x2048">
     <link rel="shortcut icon" href="../assets/vm.png" type="image/png" sizes="2048x2048">
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <style>
         .login-card {
             background: var(--surface);

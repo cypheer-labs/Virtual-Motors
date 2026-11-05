@@ -38,7 +38,14 @@ if (
     }
 }
 $headerFotoPerfil = $_SESSION['usuario_foto_perfil'] ?? null;
-if ($headerEmail !== null && empty($_SESSION['usuario_perfil_carregado'])) {
+if (
+    $headerEmail !== null
+    && (
+        empty($_SESSION['usuario_perfil_carregado'])
+        || !is_string($headerFotoPerfil)
+        || $headerFotoPerfil === ''
+    )
+) {
     $headerIdUsuario = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);
     if ($headerIdUsuario !== false && $headerIdUsuario !== null && $headerIdUsuario > 0) {
         try {
@@ -100,9 +107,6 @@ $headerAvaliacoes = $headerBasePath . 'src/avaliacao.php';
             <a href="<?= htmlspecialchars($headerContato, ENT_QUOTES, 'UTF-8') ?>">Contato</a>
             <a href="<?= htmlspecialchars($headerCarrinhoHref, ENT_QUOTES, 'UTF-8') ?>">Carrinho (<?= $headerQuantidadeCarrinho ?>)</a>
             <a href="<?= htmlspecialchars($headerAvaliacoes, ENT_QUOTES, 'UTF-8') ?>" <?= !empty($headerPaginaAvaliacoes) ? 'aria-current="page"' : '' ?>>Avaliações</a>
-            <?php if ($headerEmail !== null) : ?>
-                <a href="<?= htmlspecialchars($headerCompras, ENT_QUOTES, 'UTF-8') ?>" <?= !empty($headerPaginaCompras) ? 'aria-current="page"' : '' ?>>Minhas compras</a>
-            <?php endif; ?>
         </nav>
 
         <div class="user-menu-right">

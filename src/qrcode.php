@@ -198,7 +198,7 @@ if ($pagamentoConcluido) {
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Revise seu pedido e veja o QR Code demonstrativo da Virtual Motors.">
     <title><?= $pagamentoConcluido ? 'Pagamento realizado' : 'Pagamento por QR Code' ?> - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body class="<?= $pagamentoConcluido ? 'qr-payment-success-page' : 'qr-payment-page' ?>">

@@ -111,7 +111,7 @@ if (!$modoVisualizacao && !$erroBanco && !$estoqueInsuficiente && $veiculos !== 
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Confira seu pedido Virtual Motors e preencha os dados de entrega.">
     <title>Pagamento - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body<?= $modoVisualizacao ? ' class="checkout-preview"' : '' ?>>
