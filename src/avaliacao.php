@@ -18,17 +18,13 @@ $idPedido = $idPedidoValidado !== false && $idPedidoValidado !== null && $idPedi
     : null;
 $mensagemErro = null;
 $mensagemSucesso = $_SESSION['virtual_motors_avaliacao_mensagem'] ?? null;
-unset($_SESSION['virtual_motors_avaliacao_mensagem'], $_SESSION['virtual_motors_pagamento_sucesso']);
+$compraConfirmada = !empty($_SESSION['virtual_motors_pagamento_sucesso']);
+unset(
+    $_SESSION['virtual_motors_avaliacao_mensagem'],
+    $_SESSION['virtual_motors_pagamento_sucesso']
+);
 $chaveCsrf = 'virtual_motors_avaliacao_csrf';
 if (!isset($_SESSION[$chaveCsrf]) || !is_string($_SESSION[$chaveCsrf])) {
-$idPedido = filter_var($idPedidoEnviado, FILTER_VALIDATE_INT);
-$idPedido = $idPedido !== false && $idPedido !== null && $idPedido > 0 ? $idPedido : null;
-$mensagemErro = null;
-$mensagemSucesso = $_SESSION['virtual_motors_avaliacao_mensagem'] ?? null;
-$compraConfirmada = !empty($_SESSION['virtual_motors_pagamento_sucesso']);
-unset($_SESSION['virtual_motors_avaliacao_mensagem'], $_SESSION['virtual_motors_pagamento_sucesso']);
-$chaveCsrf = 'virtual_motors_avaliacao_csrf';
-if (!isset($_SESSION[$chaveCsrf])) {
     $_SESSION[$chaveCsrf] = bin2hex(random_bytes(32));
 }
 
@@ -123,19 +119,13 @@ $headerPaginaAvaliacoes = true;
             <p>Opiniões de quem já comprou na Virtual Motors.</p>
         </div>
 
-        <?php if (is_string($mensagemSucesso) && $mensagemSucesso !== '') : ?>
-            <p class="cart-message" role="status"><?= htmlspecialchars($mensagemSucesso, ENT_QUOTES, 'UTF-8') ?></p>
-        <?php endif; ?>
-        <?php if ($mensagemErro !== null) : ?>
-            <p class="cart-message cart-error" role="alert"><?= htmlspecialchars($mensagemErro, ENT_QUOTES, 'UTF-8') ?></p>
-        <?php endif; ?>
         <?php if ($compraConfirmada) : ?>
             <p class="cart-message cart-success" role="status">Compra #<?= (int) ($_SESSION['virtual_motors_ultimo_pedido'] ?? 0) ?> confirmada. Obrigado pela preferência!</p>
         <?php endif; ?>
 
-        <?php if ($mensagemSucesso !== null) : ?>
+        <?php if (is_string($mensagemSucesso) && $mensagemSucesso !== '') : ?>
             <p class="cart-message cart-success" role="status">
-                <?= htmlspecialchars((string) $mensagemSucesso, ENT_QUOTES, 'UTF-8') ?>
+                <?= htmlspecialchars($mensagemSucesso, ENT_QUOTES, 'UTF-8') ?>
             </p>
         <?php endif; ?>
 
