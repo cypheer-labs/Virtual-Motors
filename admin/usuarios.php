@@ -254,10 +254,12 @@ $busca = is_string($buscaEnviada) ? trim($buscaEnviada) : '';
 $paginaEnviada = filter_var($_GET['pagina'] ?? 1, FILTER_VALIDATE_INT);
 $pagina = $paginaEnviada === false || $paginaEnviada < 1 ? 1 : $paginaEnviada;
 $porPagina = 50;
-$condicao = '';
+$clausulaBusca = '';
 $parametrosBusca = [];
 if ($busca !== '') {
-    $condicao = ' WHERE nome LIKE :nome OR email LIKE :email OR telefone LIKE :telefone OR endereco LIKE :endereco OR CAST(uid AS CHAR) LIKE :uid';
+    // A cláusula contém apenas SQL fixo; o texto da busca usa parâmetros vinculados.
+    $clausulaBusca = ' WHERE nome LIKE :nome OR email LIKE :email OR telefone LIKE :telefone '
+        . 'OR endereco LIKE :endereco OR CAST(uid AS CHAR) LIKE :uid';
     $termo = '%' . $busca . '%';
     $parametrosBusca = [
         'nome' => $termo,
@@ -269,7 +271,7 @@ if ($busca !== '') {
 }
 
 try {
-    $contagem = $pdo->prepare('SELECT COUNT(*) FROM usuario' . $condicao);
+    $contagem = $pdo->prepare('SELECT COUNT(*) FROM usuario' . $clausulaBusca);
     $contagem->execute($parametrosBusca);
     $totalUsuarios = (int) $contagem->fetchColumn();
     $totalPaginas = max(1, (int) ceil($totalUsuarios / $porPagina));
@@ -278,7 +280,7 @@ try {
 
     $consultaUsuarios = $pdo->prepare(
         'SELECT id_usuario, uid, nome, email, telefone, endereco, tipo_usuario FROM usuario'
-        . $condicao
+        . $clausulaBusca
         . ' ORDER BY id_usuario DESC LIMIT ' . $porPagina . ' OFFSET ' . $offset
     );
     $consultaUsuarios->execute($parametrosBusca);
@@ -351,6 +353,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
     <a href="dashboard.php">Painel</a>
     <a href="produtos.php">Produtos</a>
     <a href="usuarios.php" aria-current="page">Usuários</a>
+    <a href="pedidos.php">Pedidos</a>
     <a class="sair" href="../index.php">Voltar à loja</a>
 </nav>
 
