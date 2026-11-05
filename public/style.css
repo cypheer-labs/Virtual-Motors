@@ -20,10 +20,7 @@ body {
 }
 
 img {
-    max-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
+    max-width: 100%;
     display: block;
 }
 
@@ -51,6 +48,7 @@ select {
     --graphite: #242424;
 
     --white: #FFFFFF;
+    --profile-card-bg: #f3f4f6;
 
     --gray-light: #F3F4F6;
     --gray: #6B7280;
@@ -215,6 +213,11 @@ select {
     gap: 7px;
 }
 
+.welcome-text.header-profile-name {
+    font-size: 17px;
+    font-weight: 700;
+}
+
 .user-menu {
     position: relative;
 }
@@ -228,15 +231,23 @@ select {
     display: none;
 }
 
+.profile-avatar-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    border-radius: 50%;
+}
+
 .user-avatar {
     width: 36px;
     height: 36px;
     flex: 0 0 auto;
+    border-radius: 50%;
     fill: none;
     stroke: var(--red);
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1.5;
+    object-fit: cover;
 }
 
 .user-menu-caret {
@@ -708,6 +719,19 @@ select {
     text-transform: uppercase;
 }
 
+.vehicle-review-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    padding: 6px 10px;
+    border-radius: 3px;
+    background: rgba(17, 17, 17, 0.78);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
 .vehicle-info {
     padding: 22px;
 }
@@ -721,6 +745,20 @@ select {
     font-size: 22px;
 
     margin: 6px 0;
+}
+
+.vehicle-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.vehicle-rating-star {
+    color: #f5b301;
+    font-size: 16px;
 }
 
 .vehicle-description {
@@ -1222,6 +1260,14 @@ select {
     color: var(--text);
 }
 
+.profile-page-wrapper {
+    width: min(900px, calc(100% - 40px));
+    min-height: 65vh;
+    margin: 0 auto;
+    padding: 54px 0 72px;
+    color: var(--text);
+}
+
 .purchase-history-heading {
     margin-bottom: 28px;
 }
@@ -1234,6 +1280,180 @@ select {
 .purchase-history-heading p {
     margin-top: 6px;
     color: var(--muted);
+}
+
+.profile-customization,
+.profile-view-card {
+    margin-bottom: 36px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.profile-cover {
+    height: 190px;
+    overflow: hidden;
+    background: linear-gradient(120deg, #171717, #555, #a3151b);
+}
+
+.profile-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-customization-content,
+.profile-view-content {
+    padding: 24px 30px 30px;
+}
+
+.profile-view-identity {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.profile-view-identity h2 {
+    padding-bottom: 8px;
+    font-size: 28px;
+    overflow-wrap: anywhere;
+}
+
+.profile-view-name {
+    color: var(--text);
+}
+
+.profile-view-card {
+    background: var(--profile-card-bg);
+}
+
+.profile-view-bio {
+    margin-top: 16px;
+    color: var(--text);
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.profile-view-bio a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.profile-page-actions {
+    display: flex;
+    width: min(100%, 360px);
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.profile-page-actions .button {
+    width: 100%;
+}
+
+.profile-back-button {
+    display: inline-flex;
+    margin-top: 16px;
+}
+
+.profile-customization-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.profile-preview-avatar {
+    display: flex;
+    width: 76px;
+    height: 76px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 4px solid var(--surface);
+    border-radius: 50%;
+    margin-top: -52px;
+    background: var(--red);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.profile-preview-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-customization-heading h2 {
+    margin-top: 4px;
+    font-size: 23px;
+}
+
+.profile-customization-heading p {
+    margin-top: 4px;
+    color: var(--muted);
+}
+
+.profile-customization-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(140px, 0.5fr);
+    gap: 18px 22px;
+}
+
+.profile-form-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-form-field label {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.profile-form-field input[type="text"],
+.profile-form-field input[type="file"],
+.profile-form-field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--field-bg);
+    color: var(--text);
+    font: inherit;
+}
+
+.profile-form-field textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.profile-form-field input[type="color"] {
+    width: 68px;
+    height: 44px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--field-bg);
+    cursor: pointer;
+}
+
+.profile-form-field small {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.profile-save-button {
+    justify-self: start;
+    align-self: end;
 }
 
 .purchase-history-empty,
@@ -2377,6 +2597,43 @@ select {
         padding: 34px 0 48px;
     }
 
+    .profile-cover {
+        height: 140px;
+    }
+
+    .profile-customization-content,
+    .profile-view-content {
+        padding: 20px 16px 22px;
+    }
+
+    .profile-page-wrapper {
+        width: min(100% - 28px, 900px);
+        padding: 34px 0 48px;
+    }
+
+    .profile-customization-form {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-customization-heading {
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .profile-customization-heading h2 {
+        font-size: 20px;
+    }
+
+    .profile-preview-avatar {
+        width: 62px;
+        height: 62px;
+        margin-top: -46px;
+    }
+
+    .profile-view-identity h2 {
+        font-size: 23px;
+    }
+
     .purchase-history-heading h1 {
         font-size: 27px;
     }
@@ -2924,9 +3181,15 @@ select {
     color: var(--muted);
 }
 
-.profile-purchases {
-    display: grid;
-    gap: 18px;
+.reviews-wrapper {
+    width: min(1080px, calc(100% - 40px));
+    min-height: 65vh;
+    margin: 0 auto;
+    padding: 54px 0 72px;
+}
+
+.reviews-heading {
+    margin-bottom: 28px;
 }
 
 .password-field {
@@ -2965,20 +3228,197 @@ select {
     gap: 16px;
 }
 
-.profile-purchases-heading h2 {
-    font-size: 22px;
+.reviews-heading h1 {
+    margin-top: 8px;
+    font-size: 32px;
 }
 
-.profile-purchase-order .purchase-order-header {
+.reviews-heading p {
+    margin-top: 6px;
+    color: var(--muted);
+}
+
+.review-form,
+.review-item,
+.reviews-empty {
+    border: 1px solid var(--border);
+    border-radius: 8px;
     background: var(--surface);
 }
 
-:root[data-theme="dark"] .profile-purchase-order .purchase-order-header {
+.review-form {
+    margin-bottom: 32px;
+    padding: 24px;
+}
+
+.review-form h2,
+.reviews-list h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+.review-stars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+    padding: 0;
+    border: 0;
+}
+
+.review-stars legend,
+.review-description-label {
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.review-stars legend {
+    flex-basis: 100%;
+}
+
+.review-star-option {
+    position: relative;
+}
+
+.review-star-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.review-star-option > span {
+    display: inline-flex;
+    min-width: 64px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.review-star-option input:checked + span {
+    border-color: var(--red);
+    background: var(--notice-bg);
+    color: var(--notice-text);
+}
+
+.review-star-option input:focus-visible + span {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+}
+
+.review-star-symbol,
+.review-rating {
+    color: #f5b301;
+}
+
+.review-description-label {
+    display: block;
+}
+
+.review-description {
+    width: 100%;
+    min-height: 120px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--field-bg);
+    color: var(--text);
+    font: inherit;
+    resize: vertical;
+}
+
+.review-form-note,
+.review-date {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.review-purchase-info {
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+}
+
+.review-form-note {
+    margin: -8px 0 16px;
+}
+
+.reviews-list {
+    display: grid;
+    gap: 14px;
+}
+
+.review-item {
+    padding: 20px 22px;
+}
+
+.review-item header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-bottom: 8px;
+}
+
+.review-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.review-author-avatar {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 50%;
     background: var(--gray-light);
+    color: var(--text);
+    font-weight: 700;
+}
+
+.review-author-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.review-author-avatar:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
+}
+
+.review-item h3 {
+    font-size: 16px;
+}
+
+.review-rating {
+    font-size: 18px;
+    letter-spacing: 0;
+}
+
+.review-item p {
+    overflow-wrap: anywhere;
+}
+
+.reviews-empty {
+    padding: 24px;
+    color: var(--muted);
 }
 
 :root[data-theme="dark"] {
     color-scheme: dark;
+    --profile-card-bg: #1c1f22;
     --page-bg: #111315;
     --surface: #1c1f22;
     --text: #f3f4f6;
@@ -2995,6 +3435,7 @@ select {
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
         color-scheme: dark;
+        --profile-card-bg: #1c1f22;
         --page-bg: #111315;
         --surface: #1c1f22;
         --text: #f3f4f6;
@@ -3013,11 +3454,6 @@ select {
     .auth-main {
         min-height: calc(100vh - 72px);
         padding: 28px 14px;
-    }
-
-    .profile-purchases-heading {
-        align-items: flex-start;
-        flex-direction: column;
     }
 
     .theme-toggle {

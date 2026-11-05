@@ -30,6 +30,7 @@ O sistema tem finalidade educacional e não processa pagamentos reais.
 - Banco de dados MySQL e dumps SQL.
 - Conexão entre PHP e MySQL.
 - Busca e listagem de veículos.
+- Avaliações de compras confirmadas e médias nos cards dos veículos.
 - Cálculo de parcelas com base no valor do veículo.
 - Estrutura para histórico de compras.
 - UID numérico por conta e carrinho persistente vinculado ao usuário.
@@ -61,6 +62,7 @@ Os estados devem ser atualizados conforme cada funcionalidade for testada e inte
 - Cálculo de parcelas.
 - Estrutura de autenticação e controle de acesso.
 - Registro e consulta do histórico de compras.
+- Registro e consulta de avaliações dos pedidos.
 - Integração com PHPMailer para envio de e-mails via SMTP.
 
 ### Banco de dados
@@ -170,6 +172,12 @@ A branch principal deve conter a versão integrada e revisada do projeto. Os nom
    - `database/migrations/20261029_create_avaliacao.sql`
    - `database/migrations/20261101_convert_cars_to_innodb.sql`
    - `database/migrations/20261102_add_account_uid_and_persistent_cart.sql`
+   - `database/migrations/20261102_add_auth_session_version.sql`
+   - `database/migrations/20261103_add_profile_customization.sql`
+   - `database/migrations/20261103_add_profile_bio_and_box_color.sql`
+   - `database/migrations/20261105_remove_profile_box_color.sql`
+   - `database/migrations/20261105_create_avaliacao.sql`
+   - `database/migrations/20261105_add_product_stock.sql`
 
 6. Copie `config/database.config.php.example` para `config/database.config.php`.
 7. Preencha as credenciais do banco de dados local. O arquivo real contém configurações privadas e não deve ser versionado.

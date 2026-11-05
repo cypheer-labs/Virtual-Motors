@@ -17,7 +17,8 @@ class AvaliacaoRepository
     public function listarTodas(): array
     {
         $consulta = $this->connection->query(
-            'SELECT a.estrelas, a.descricao, a.criado_em, u.nome, p.criado_em AS data_compra, '
+            'SELECT a.estrelas, a.descricao, a.criado_em, u.id_usuario, u.nome, u.foto_perfil, '
+            . 'p.criado_em AS data_compra, '
             . '(SELECT GROUP_CONCAT(DISTINCT COALESCE(NULLIF(ip.nome_carro, \'\'), c.nome) '
             . 'ORDER BY COALESCE(NULLIF(ip.nome_carro, \'\'), c.nome) SEPARATOR \', \') '
             . 'FROM item_pedido ip LEFT JOIN carros c ON c.id_carro = ip.id_carro '
