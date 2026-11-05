@@ -229,8 +229,8 @@ select {
 }
 
 .user-avatar {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     flex: 0 0 auto;
     fill: none;
     stroke: var(--red);
@@ -653,7 +653,7 @@ select {
 }
 
 .vehicle-image {
-    height: 230px;
+    height: 300px;
 
     position: relative;
 
@@ -666,7 +666,8 @@ select {
     width: 100%;
     height: 100%;
 
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
     background: linear-gradient(135deg, #171717, #3b3b3b);
 
     transition: 0.4s;
@@ -685,7 +686,7 @@ select {
 }
 
 .vehicle-card:hover .vehicle-image img {
-    transform: scale(1.05);
+    transform: none;
 }
 
 .vehicle-badge {
@@ -2758,8 +2759,8 @@ select {
     }
 
     .user-avatar {
-        width: 32px;
-        height: 32px;
+        width: 40px;
+        height: 40px;
     }
 
     .welcome-text {
@@ -2831,6 +2832,10 @@ select {
 
     .vehicle-grid {
         grid-template-columns: 1fr;
+    }
+
+    .vehicle-image {
+        height: 260px;
     }
 
     .cart-wrapper {
