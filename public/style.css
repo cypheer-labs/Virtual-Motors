@@ -627,6 +627,12 @@ select {
     font-size: 14px;
 }
 
+.vehicle-stock-note {
+    margin: -14px 0 18px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
 .vehicle-card {
     overflow: hidden;
 
@@ -721,6 +727,18 @@ select {
     color: var(--gray);
 
     font-size: 13px;
+}
+
+.vehicle-stock {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.vehicle-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 .vehicle-footer {
@@ -927,6 +945,20 @@ select {
     padding: 0 8px;
     border: 1px solid var(--border);
     border-radius: 4px;
+}
+
+.cart-stock {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cart-checkout-disabled {
+    display: flex;
+    justify-content: center;
+    cursor: not-allowed;
+    opacity: 0.65;
 }
 
 .cart-item-price {

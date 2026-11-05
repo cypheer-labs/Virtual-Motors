@@ -28,7 +28,8 @@ class CarroRepository
 
         $marcadores = implode(', ', array_fill(0, count($ids), '?'));
         $consulta = Database::getConnection()->prepare(
-            "SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url FROM carros WHERE id_carro IN ({$marcadores}) ORDER BY nome"
+            "SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url, estoque FROM carros "
+            . "WHERE id_carro IN ({$marcadores}) ORDER BY nome"
         );
         $consulta->execute($ids);
 
@@ -69,7 +70,7 @@ class CarroRepository
             $parametros['preco_maximo'] = $precoMaximo;
         }
 
-        $sql = 'SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url FROM carros';
+        $sql = 'SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url, estoque FROM carros';
         if ($condicoes !== []) {
             $sql .= ' WHERE ' . implode(' AND ', $condicoes);
         }
@@ -94,12 +95,54 @@ class CarroRepository
     private function veiculosDemonstracao(): array
     {
         return $this->incluirImagens([
-            ['id_carro' => 1, 'nome' => 'Ferrari 488 GTB', 'cor' => 'Vermelho', 'preco' => 2500000, 'jogo_origem' => 'Forza Horizon'],
-            ['id_carro' => 2, 'nome' => 'Lamborghini Huracán', 'cor' => 'Amarelo', 'preco' => 3000000, 'jogo_origem' => 'Forza Horizon'],
-            ['id_carro' => 3, 'nome' => 'Porsche 911', 'cor' => 'Preto', 'preco' => 1800000, 'jogo_origem' => 'Need for Speed'],
-            ['id_carro' => 4, 'nome' => 'Nissan Skyline GT-R', 'cor' => 'Azul', 'preco' => 900000, 'jogo_origem' => 'Need for Speed'],
-            ['id_carro' => 5, 'nome' => 'BMW M4', 'cor' => 'Branco', 'preco' => 1200000, 'jogo_origem' => 'Forza Horizon'],
-            ['id_carro' => 6, 'nome' => 'McLaren 720S', 'cor' => 'Laranja', 'preco' => 2800000, 'jogo_origem' => 'Forza Horizon'],
+            [
+                'id_carro' => 1,
+                'nome' => 'Ferrari 488 GTB',
+                'cor' => 'Vermelho',
+                'preco' => 2500000,
+                'jogo_origem' => 'Forza Horizon',
+                'estoque' => 0,
+            ],
+            [
+                'id_carro' => 2,
+                'nome' => 'Lamborghini Huracán',
+                'cor' => 'Amarelo',
+                'preco' => 3000000,
+                'jogo_origem' => 'Forza Horizon',
+                'estoque' => 0,
+            ],
+            [
+                'id_carro' => 3,
+                'nome' => 'Porsche 911',
+                'cor' => 'Preto',
+                'preco' => 1800000,
+                'jogo_origem' => 'Need for Speed',
+                'estoque' => 0,
+            ],
+            [
+                'id_carro' => 4,
+                'nome' => 'Nissan Skyline GT-R',
+                'cor' => 'Azul',
+                'preco' => 900000,
+                'jogo_origem' => 'Need for Speed',
+                'estoque' => 0,
+            ],
+            [
+                'id_carro' => 5,
+                'nome' => 'BMW M4',
+                'cor' => 'Branco',
+                'preco' => 1200000,
+                'jogo_origem' => 'Forza Horizon',
+                'estoque' => 0,
+            ],
+            [
+                'id_carro' => 6,
+                'nome' => 'McLaren 720S',
+                'cor' => 'Laranja',
+                'preco' => 2800000,
+                'jogo_origem' => 'Forza Horizon',
+                'estoque' => 0,
+            ],
         ]);
     }
 

@@ -74,7 +74,19 @@ try {
 }
 
 $totalPedido = 0;
-if (!$modoVisualizacao && !$erroBanco && $veiculos !== []) {
+$estoqueInsuficiente = false;
+if (!$erroBanco && $veiculos !== []) {
+    foreach ($veiculos as $veiculo) {
+        $idCarro = (int) $veiculo['id_carro'];
+        $quantidade = (int) ($itensPedido[$idCarro] ?? 0);
+        if ($quantidade < 1 || $quantidade > (int) $veiculo['estoque']) {
+            $estoqueInsuficiente = true;
+            break;
+        }
+    }
+}
+
+if (!$modoVisualizacao && !$erroBanco && !$estoqueInsuficiente && $veiculos !== []) {
     $itensPedidoConfirmados = [];
     foreach ($veiculos as $veiculo) {
         $idCarro = (int) $veiculo['id_carro'];
@@ -123,6 +135,11 @@ if (!$modoVisualizacao && !$erroBanco && $veiculos !== []) {
                 <p>Não encontramos os veículos deste pedido no estoque.</p>
                 <a href="carrinho.php" class="button button-primary">Voltar ao carrinho</a>
             </div>
+        <?php elseif ($estoqueInsuficiente) : ?>
+            <p class="cart-message cart-error" role="alert">
+                A quantidade solicitada excede o estoque atual. Revise seu carrinho antes de continuar.
+            </p>
+            <a href="../index.php#veiculos" class="button button-primary">Voltar aos veículos</a>
         <?php else : ?>
             <div class="checkout-layout">
                 <div class="checkout-form">
