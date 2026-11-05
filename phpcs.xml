@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="Virtual Motors">
     <description>PSR-12 checks for first-party PHP code.</description>
-    <config name="ignore_warnings_on_exit" value="true"/>
-
     <file>src</file>
     <file>admin</file>
     <file>index.php</file>
