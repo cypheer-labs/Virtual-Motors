@@ -14,6 +14,7 @@ $idPedido = filter_var($idPedidoEnviado, FILTER_VALIDATE_INT);
 $idPedido = $idPedido !== false && $idPedido !== null && $idPedido > 0 ? $idPedido : null;
 $mensagemErro = null;
 $mensagemSucesso = $_SESSION['virtual_motors_avaliacao_mensagem'] ?? null;
+$compraConfirmada = !empty($_SESSION['virtual_motors_pagamento_sucesso']);
 unset($_SESSION['virtual_motors_avaliacao_mensagem'], $_SESSION['virtual_motors_pagamento_sucesso']);
 $chaveCsrf = 'virtual_motors_avaliacao_csrf';
 if (!isset($_SESSION[$chaveCsrf])) {
@@ -101,6 +102,10 @@ $headerPaginaAvaliacoes = true;
             <h1>Avaliações</h1>
             <p>Opiniões de quem já comprou na Virtual Motors.</p>
         </div>
+
+        <?php if ($compraConfirmada) : ?>
+            <p class="cart-message cart-success" role="status">Compra #<?= (int) ($_SESSION['virtual_motors_ultimo_pedido'] ?? 0) ?> confirmada. Obrigado pela preferência!</p>
+        <?php endif; ?>
 
         <?php if ($mensagemSucesso !== null) : ?>
             <p class="cart-message cart-success" role="status">
