@@ -21,6 +21,14 @@ $mensagemSucesso = $_SESSION['virtual_motors_avaliacao_mensagem'] ?? null;
 unset($_SESSION['virtual_motors_avaliacao_mensagem'], $_SESSION['virtual_motors_pagamento_sucesso']);
 $chaveCsrf = 'virtual_motors_avaliacao_csrf';
 if (!isset($_SESSION[$chaveCsrf]) || !is_string($_SESSION[$chaveCsrf])) {
+$idPedido = filter_var($idPedidoEnviado, FILTER_VALIDATE_INT);
+$idPedido = $idPedido !== false && $idPedido !== null && $idPedido > 0 ? $idPedido : null;
+$mensagemErro = null;
+$mensagemSucesso = $_SESSION['virtual_motors_avaliacao_mensagem'] ?? null;
+$compraConfirmada = !empty($_SESSION['virtual_motors_pagamento_sucesso']);
+unset($_SESSION['virtual_motors_avaliacao_mensagem'], $_SESSION['virtual_motors_pagamento_sucesso']);
+$chaveCsrf = 'virtual_motors_avaliacao_csrf';
+if (!isset($_SESSION[$chaveCsrf])) {
     $_SESSION[$chaveCsrf] = bin2hex(random_bytes(32));
 }
 
@@ -121,6 +129,22 @@ $headerPaginaAvaliacoes = true;
         <?php if ($mensagemErro !== null) : ?>
             <p class="cart-message cart-error" role="alert"><?= htmlspecialchars($mensagemErro, ENT_QUOTES, 'UTF-8') ?></p>
         <?php endif; ?>
+        <?php if ($compraConfirmada) : ?>
+            <p class="cart-message cart-success" role="status">Compra #<?= (int) ($_SESSION['virtual_motors_ultimo_pedido'] ?? 0) ?> confirmada. Obrigado pela preferência!</p>
+        <?php endif; ?>
+
+        <?php if ($mensagemSucesso !== null) : ?>
+            <p class="cart-message cart-success" role="status">
+                <?= htmlspecialchars((string) $mensagemSucesso, ENT_QUOTES, 'UTF-8') ?>
+            </p>
+        <?php endif; ?>
+
+        <?php if ($mensagemErro !== null) : ?>
+            <p class="cart-message cart-error" role="alert">
+                <?= htmlspecialchars($mensagemErro, ENT_QUOTES, 'UTF-8') ?>
+            </p>
+        <?php endif; ?>
+
         <?php if ($erroBanco) : ?>
             <p class="cart-message cart-error" role="alert">Não foi possível carregar as avaliações. Tente novamente em instantes.</p>
         <?php elseif ($pedidoConfirmado !== null && $avaliacaoDoPedido === null && $usuarioAutenticado) : ?>
@@ -138,6 +162,7 @@ $headerPaginaAvaliacoes = true;
                 </p>
                 <input type="hidden" name="pedido" value="<?= (int) $idPedido ?>">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION[$chaveCsrf], ENT_QUOTES, 'UTF-8') ?>">
+
                 <fieldset class="review-stars">
                     <legend>Quantas estrelas você dá para sua experiência?</legend>
                     <?php for ($estrela = 1; $estrela <= 5; $estrela++) : ?>

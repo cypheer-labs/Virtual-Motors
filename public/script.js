@@ -287,7 +287,6 @@ function createVehicleCard(vehicle) {
     buyButton.setAttribute("aria-label", `Comprar ${vehicle.nome} sem adicionar ao carrinho`);
     buyButton.disabled = estoque < 1;
     buyNow.append(directAction, directVehicleId, buyButton);
-    buyNow.append(directAction, directVehicleId, buyButton);
 
     addToCart.append(action, vehicleId, addButton);
     const actions = document.createElement("div");

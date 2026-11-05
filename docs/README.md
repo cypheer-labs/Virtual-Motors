@@ -169,6 +169,7 @@ A branch principal deve conter a versão integrada e revisada do projeto. Os nom
 
    - `database/migrations/20261015_add_car_image_url.sql`
    - `database/migrations/20261022_add_purchase_history.sql`
+   - `database/migrations/20261029_create_avaliacao.sql`
    - `database/migrations/20261101_convert_cars_to_innodb.sql`
    - `database/migrations/20261102_add_account_uid_and_persistent_cart.sql`
    - `database/migrations/20261102_add_auth_session_version.sql`

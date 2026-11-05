@@ -82,6 +82,7 @@ $headerCadastro = $headerBasePath . 'src/cadastro.php';
 $headerPerfil = $headerBasePath . 'src/perfil.php';
 $headerLogout = $headerBasePath . 'src/logout.php';
 $headerCompras = $headerBasePath . 'src/minhas-compras.php';
+$headerAvaliacoes = $headerBasePath . 'src/avaliacao.php';
 ?>
 <header class="header">
     <div class="container header-content">
