@@ -33,6 +33,7 @@ O sistema tem finalidade educacional e não processa pagamentos reais.
 - Avaliações de compras confirmadas e médias nos cards dos veículos.
 - Cálculo de parcelas com base no valor do veículo.
 - Estrutura para histórico de compras.
+- UID numérico por conta e carrinho persistente vinculado ao usuário.
 - Migrations para evolução do banco de dados.
 - Gerenciamento de dependências com Composer.
 - Autoload de classes PSR-4.
@@ -69,6 +70,7 @@ Os estados devem ser atualizados conforme cada funcionalidade for testada e inte
 - Banco `loja_carros`.
 - Tabela `carros` utilizada pela listagem e busca.
 - Dumps SQL em `dump/virtualmotors/`.
+- Mapa do banco de dados: [dumps, migrations e relações](mapa-banco-de-dados.md).
 - Migrations organizadas em `database/migrations/`.
 
 ### Front-end
@@ -167,6 +169,9 @@ A branch principal deve conter a versão integrada e revisada do projeto. Os nom
 
    - `database/migrations/20261015_add_car_image_url.sql`
    - `database/migrations/20261022_add_purchase_history.sql`
+   - `database/migrations/20261101_convert_cars_to_innodb.sql`
+   - `database/migrations/20261102_add_account_uid_and_persistent_cart.sql`
+   - `database/migrations/20261102_add_auth_session_version.sql`
    - `database/migrations/20261103_add_profile_customization.sql`
    - `database/migrations/20261103_add_profile_bio_and_box_color.sql`
    - `database/migrations/20261105_remove_profile_box_color.sql`

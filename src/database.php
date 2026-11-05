@@ -80,7 +80,7 @@ class Database
                     throw new PDOException('O servidor MySQL não respondeu.', 2002);
                 }
 
-                self::$connection = new PDO(
+                $connection = new PDO(
                     "mysql:host={$servidor};port={$porta};dbname={$banco};charset=utf8mb4;connect_timeout=1",
                     $usuario,
                     $senha,
@@ -99,6 +99,23 @@ class Database
                     $e
                 );
             }
+
+            require_once __DIR__ . '/schemamigrationrunner.php';
+            try {
+                SchemaMigrationRunner::run($connection);
+            } catch (PDOException $exception) {
+                error_log('Falha ao aplicar migration do banco: ' . $exception->getMessage());
+                throw new \RuntimeException(
+                    'A conexão funcionou, mas não foi possível aplicar uma atualização necessária do banco.',
+                    0,
+                    $exception
+                );
+            } catch (\RuntimeException $exception) {
+                error_log('Falha ao preparar o esquema do banco: ' . $exception->getMessage());
+                throw $exception;
+            }
+
+            self::$connection = $connection;
         }
 
         return self::$connection;

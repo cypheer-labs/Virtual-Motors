@@ -139,7 +139,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erroBanco && $perfil !== null) {
                         throw new RuntimeException('Não foi possível atualizar o perfil.');
                     }
                     $_SESSION['usuario_nome'] = $nome;
-                    $_SESSION['usuario_nome'] = $nome;
                     $_SESSION['usuario_perfil_carregado'] = true;
                     if ($caminhoFoto !== null) {
                         $_SESSION['usuario_foto_perfil'] = $caminhoFoto;
@@ -169,11 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erroBanco && $perfil !== null) {
             } else {
                 $perfil['nome'] = $nome;
                 $perfil['bio_perfil'] = $bio;
-                if (isset($arquivosPreparados['foto_perfil']['caminho'])) {
-                    $perfil['foto_perfil'] = $arquivosPreparados['foto_perfil']['caminho'];
+                if ($caminhoFoto !== null) {
+                    $perfil['foto_perfil'] = $caminhoFoto;
                 }
-                if (isset($arquivosPreparados['banner_perfil']['caminho'])) {
-                    $perfil['banner_perfil'] = $arquivosPreparados['banner_perfil']['caminho'];
+                if ($caminhoBanner !== null) {
+                    $perfil['banner_perfil'] = $caminhoBanner;
                 }
             }
         }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/admin_guard.php';
+require_once __DIR__ . '/../src/userrepository.php';
 
 try {
     exigir_admin();
@@ -175,12 +176,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ];
 
             if ($acao === 'criar') {
-                $parametros['senha'] = password_hash($senha, PASSWORD_DEFAULT);
-                $salvar = $pdo->prepare(
-                    'INSERT INTO usuario (nome, email, senha, telefone, endereco, tipo_usuario) VALUES (:nome, :email, :senha, :telefone, :endereco, :tipo_usuario)'
+                $uidCriado = (new \VirtualMotors\Repository\UserRepository($pdo))->create(
+                    $valoresFormulario['nome'],
+                    $valoresFormulario['email'],
+                    password_hash($senha, PASSWORD_DEFAULT),
+                    $valoresFormulario['tipo_usuario'],
+                    $valoresFormulario['telefone'],
+                    $valoresFormulario['endereco'] !== '' ? $valoresFormulario['endereco'] : null
                 );
-                $salvar->execute($parametros);
-                $_SESSION['admin_usuarios_mensagem'] = 'Usuário cadastrado com sucesso.';
+                if ($uidCriado === null) {
+                    throw new DomainException('Este e-mail já está cadastrado para outro usuário.');
+                }
+                $_SESSION['admin_usuarios_mensagem'] = 'Usuário cadastrado com sucesso. UID: ' . $uidCriado;
             } else {
                 $existencia = $pdo->prepare(
                     'SELECT tipo_usuario FROM usuario WHERE id_usuario = :id_usuario LIMIT 1'
@@ -203,7 +210,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $parametros['id_usuario'] = $idUsuario;
                 if ($senha !== '') {
                     $parametros['senha'] = password_hash($senha, PASSWORD_DEFAULT);
-                    $sql = 'UPDATE usuario SET nome = :nome, email = :email, telefone = :telefone, endereco = :endereco, tipo_usuario = :tipo_usuario, senha = :senha WHERE id_usuario = :id_usuario';
+                    $sql = 'UPDATE usuario SET nome = :nome, email = :email, telefone = :telefone, '
+                        . 'endereco = :endereco, tipo_usuario = :tipo_usuario, senha = :senha, '
+                        . 'auth_version = auth_version + 1 WHERE id_usuario = :id_usuario';
                 } else {
                     $sql = 'UPDATE usuario SET nome = :nome, email = :email, telefone = :telefone, endereco = :endereco, tipo_usuario = :tipo_usuario WHERE id_usuario = :id_usuario';
                 }
@@ -245,21 +254,24 @@ $busca = is_string($buscaEnviada) ? trim($buscaEnviada) : '';
 $paginaEnviada = filter_var($_GET['pagina'] ?? 1, FILTER_VALIDATE_INT);
 $pagina = $paginaEnviada === false || $paginaEnviada < 1 ? 1 : $paginaEnviada;
 $porPagina = 50;
-$condicao = '';
+$clausulaBusca = '';
 $parametrosBusca = [];
 if ($busca !== '') {
-    $condicao = ' WHERE nome LIKE :nome OR email LIKE :email OR telefone LIKE :telefone OR endereco LIKE :endereco';
+    // A cláusula contém apenas SQL fixo; o texto da busca usa parâmetros vinculados.
+    $clausulaBusca = ' WHERE nome LIKE :nome OR email LIKE :email OR telefone LIKE :telefone '
+        . 'OR endereco LIKE :endereco OR CAST(uid AS CHAR) LIKE :uid';
     $termo = '%' . $busca . '%';
     $parametrosBusca = [
         'nome' => $termo,
         'email' => $termo,
         'telefone' => $termo,
         'endereco' => $termo,
+        'uid' => $termo,
     ];
 }
 
 try {
-    $contagem = $pdo->prepare('SELECT COUNT(*) FROM usuario' . $condicao);
+    $contagem = $pdo->prepare('SELECT COUNT(*) FROM usuario' . $clausulaBusca);
     $contagem->execute($parametrosBusca);
     $totalUsuarios = (int) $contagem->fetchColumn();
     $totalPaginas = max(1, (int) ceil($totalUsuarios / $porPagina));
@@ -267,8 +279,8 @@ try {
     $offset = ($pagina - 1) * $porPagina;
 
     $consultaUsuarios = $pdo->prepare(
-        'SELECT id_usuario, nome, email, telefone, endereco, tipo_usuario FROM usuario'
-        . $condicao
+        'SELECT id_usuario, uid, nome, email, telefone, endereco, tipo_usuario FROM usuario'
+        . $clausulaBusca
         . ' ORDER BY id_usuario DESC LIMIT ' . $porPagina . ' OFFSET ' . $offset
     );
     $consultaUsuarios->execute($parametrosBusca);
@@ -287,7 +299,7 @@ $idEditarEnviado = filter_var($_GET['editar'] ?? null, FILTER_VALIDATE_INT);
 if ($idEditarEnviado !== false && $idEditarEnviado !== null && $idEditarEnviado > 0) {
     try {
         $consultaEdicao = $pdo->prepare(
-            'SELECT id_usuario, nome, email, telefone, endereco, tipo_usuario FROM usuario WHERE id_usuario = :id_usuario'
+            'SELECT id_usuario, uid, nome, email, telefone, endereco, tipo_usuario FROM usuario WHERE id_usuario = :id_usuario'
         );
         $consultaEdicao->execute(['id_usuario' => $idEditarEnviado]);
         $usuarioEditando = $consultaEdicao->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -313,7 +325,10 @@ if ($idEditarEnviado !== false && $idEditarEnviado !== null && $idEditarEnviado 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && usuarios_post_string('acao') === 'atualizar') {
     $idFormulario = filter_var($_POST['id_usuario'] ?? null, FILTER_VALIDATE_INT);
     if ($idFormulario !== false && $idFormulario !== null && $idFormulario > 0) {
-        $usuarioEditando = ['id_usuario' => $idFormulario] + $valoresFormulario;
+        $usuarioEditando = [
+            'id_usuario' => $idFormulario,
+            'uid' => (string) ($usuarioEditando['uid'] ?? ''),
+        ] + $valoresFormulario;
     }
 }
 
@@ -338,6 +353,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
     <a href="dashboard.php">Painel</a>
     <a href="produtos.php">Produtos</a>
     <a href="usuarios.php" aria-current="page">Usuários</a>
+    <a href="pedidos.php">Pedidos</a>
     <a class="sair" href="../index.php">Voltar à loja</a>
 </nav>
 
@@ -364,6 +380,11 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
             <input type="hidden" name="acao" value="<?= $usuarioEditando !== null ? 'atualizar' : 'criar' ?>">
             <?php if ($usuarioEditando !== null) : ?>
                 <input type="hidden" name="id_usuario" value="<?= (int) $usuarioEditando['id_usuario'] ?>">
+                <div class="admin-field">
+                    <label for="uid_usuario">UID</label>
+                    <input id="uid_usuario" value="<?= usuarios_escape($usuarioEditando['uid'] ?? '') ?>" readonly>
+                    <small>Identificador numérico exclusivo da conta.</small>
+                </div>
             <?php endif; ?>
             <div class="admin-field">
                 <label for="nome">Nome</label>
@@ -405,7 +426,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
         </div>
         <form class="admin-form" method="get" action="usuarios.php" role="search">
             <div class="admin-field">
-                <label for="busca">Pesquisar por nome, e-mail, telefone ou endereço</label>
+                <label for="busca">Pesquisar por nome, UID, e-mail, telefone ou endereço</label>
                 <input id="busca" name="busca" value="<?= usuarios_escape($busca) ?>">
             </div>
             <div class="admin-actions">
@@ -424,6 +445,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
+                            <th scope="col">UID</th>
                             <th scope="col">Nome</th>
                             <th scope="col">E-mail</th>
                             <th scope="col">Telefone</th>
@@ -436,6 +458,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
                     <?php foreach ($usuarios as $usuario) : ?>
                         <tr>
                             <td><?= (int) $usuario['id_usuario'] ?></td>
+                            <td><?= usuarios_escape($usuario['uid']) ?></td>
                             <td><?= usuarios_escape($usuario['nome']) ?></td>
                             <td><?= usuarios_escape($usuario['email']) ?></td>
                             <td><?= usuarios_escape($usuario['telefone'] ?? '') ?: '—' ?></td>

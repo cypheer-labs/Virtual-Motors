@@ -5,9 +5,12 @@ use VirtualMotors\Service\AuthService;
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/userrepository.php';
 require_once __DIR__ . '/authservice.php';
+require_once __DIR__ . '/carrinhorepository.php';
 
 // Inicia a sessão
 session_start();
+require_once __DIR__ . '/authsession.php';
+validar_sessao_usuario();
 
 $mensagem = "";
 
@@ -25,11 +28,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $_SESSION['usuario_email'] = $usuario['email'];
                 $_SESSION['usuario_nome'] = $usuario['nome'];
+                $_SESSION['usuario_uid'] = (string) $usuario['uid'];
                 $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
                 $_SESSION['usuario_foto_perfil'] = $usuario['foto_perfil'] ?? null;
                 $_SESSION['usuario_banner_perfil'] = $usuario['banner_perfil'] ?? null;
                 $_SESSION['usuario_perfil_carregado'] = true;
+                $_SESSION['auth_version'] = (int) $usuario['auth_version'];
+                try {
+                    $carrinhoRepository = new \VirtualMotors\Repository\CarrinhoRepository();
+                    $idUsuario = (int) $usuario['id'];
+                    $carrinhoAtual = $_SESSION['virtual_motors_carrinho'] ?? [];
+                    $_SESSION['virtual_motors_carrinho'] =
+                        (int) ($_SESSION['virtual_motors_carrinho_usuario_id'] ?? 0) === $idUsuario
+                            ? $carrinhoAtual
+                            : $carrinhoRepository->combinar(
+                                $carrinhoRepository->buscar($idUsuario),
+                                $carrinhoAtual
+                            );
+                    $_SESSION['virtual_motors_carrinho_usuario_id'] = (int) $usuario['id'];
+                    $carrinhoRepository->salvar($idUsuario, $_SESSION['virtual_motors_carrinho']);
+                } catch (Throwable $erroCarrinho) {
+                    error_log($erroCarrinho->getMessage());
+                    $_SESSION['virtual_motors_carrinho_mensagem'] =
+                        'Não foi possível sincronizar seu carrinho. Seus itens desta sessão continuam disponíveis.';
+                }
                 $destinoLogin = isset($_SESSION['virtual_motors_compra_direta'])
+                    || !empty($_SESSION['virtual_motors_pagamento_pendente'])
                     ? 'pagamento.php'
                     : '../index.php';
 
@@ -38,10 +62,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $mensagem = "E-mail ou senha incorretos.";
+        } catch (RuntimeException $erro) {
+            error_log($erro->getMessage());
+            http_response_code(503);
+            $mensagem = 'Não foi possível preparar o banco para o acesso. Verifique as permissões e os logs do servidor.';
         } catch (PDOException $erro) {
             error_log($erro->getMessage());
             http_response_code(503);
-            $mensagem = "Não foi possível acessar o banco de dados. Inicie o MySQL no XAMPP e tente novamente.";
+            $mensagem = 'Não foi possível conectar ao banco de dados. Verifique a configuração do servidor e tente novamente.';
         }
     } else {
         $mensagem = "Preencha todos os campos.";
@@ -155,6 +183,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             height: 48px;
             background: #0051ff;
@@ -163,6 +194,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
+            line-height: 1.2;
+            text-align: center;
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -217,13 +250,29 @@ require __DIR__ . '/header.php';
 
         <form method="POST" action="login.php" autocomplete="off">
             <div class="form-group">
-                <label>E-MAIL</label>
-                <input type="email" name="email" autocomplete="off" required placeholder="exemplo@email.com">
+                <label for="email">E-MAIL</label>
+                <input id="email" type="email" name="email" autocomplete="off" required placeholder="exemplo@email.com">
             </div>
 
             <div class="form-group">
-                <label>SENHA</label>
-                <input type="password" name="senha" autocomplete="new-password" required placeholder="••••••••••••">
+                <label for="senha">SENHA</label>
+                <div class="password-field">
+                    <input
+                        id="senha"
+                        type="password"
+                        name="senha"
+                        autocomplete="current-password"
+                        required
+                        placeholder="••••••••••••"
+                    >
+                    <button
+                        class="password-toggle"
+                        type="button"
+                        data-password-toggle
+                        aria-controls="senha"
+                        aria-pressed="false"
+                    >Mostrar</button>
+                </div>
             </div>
 
             <div class="forgot-password">

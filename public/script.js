@@ -8,6 +8,18 @@ const mainNav = document.getElementById("mainNav");
 const themeToggle = document.getElementById("themeToggle");
 const pageHeader = document.querySelector(".header");
 
+document.querySelectorAll("[data-password-toggle]").forEach((toggle) => {
+    toggle.addEventListener("click", () => {
+        const passwordInput = document.getElementById(toggle.getAttribute("aria-controls"));
+        if (!(passwordInput instanceof HTMLInputElement)) return;
+
+        const showingPassword = passwordInput.type === "password";
+        passwordInput.type = showingPassword ? "text" : "password";
+        toggle.textContent = showingPassword ? "Ocultar" : "Mostrar";
+        toggle.setAttribute("aria-pressed", String(showingPassword));
+    });
+});
+
 let previousScrollY = window.scrollY;
 let accumulatedScrollDelta = 0;
 

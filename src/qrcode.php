@@ -3,6 +3,7 @@
 session_start();
 
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/authsession.php';
 require_once __DIR__ . '/carrorepository.php';
 require_once __DIR__ . '/pedidorepository.php';
 
@@ -14,6 +15,11 @@ $chaveSucesso = 'virtual_motors_pagamento_sucesso';
 $mensagemErro = null;
 $pagamentoConcluido = !empty($_SESSION[$chaveSucesso]);
 unset($_SESSION[$chaveSucesso]);
+
+if (!validar_sessao_usuario()) {
+    header('Location: login.php');
+    exit;
+}
 
 if (empty($_SESSION['usuario_email'])) {
     header('Location: login.php');
@@ -128,7 +134,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $_SESSION['virtual_motors_ultimo_pedido'] = $idPedido;
-            $_SESSION[$chaveCarrinho] = [];
+            foreach ($itensPedido as $idCarro => $quantidade) {
+                $quantidadeRestante = (int) ($_SESSION[$chaveCarrinho][$idCarro] ?? 0) - (int) $quantidade;
+                if ($quantidadeRestante > 0) {
+                    $_SESSION[$chaveCarrinho][$idCarro] = $quantidadeRestante;
+                } else {
+                    unset($_SESSION[$chaveCarrinho][$idCarro]);
+                }
+            }
             unset(
                 $_SESSION['virtual_motors_compra_direta'],
                 $_SESSION[$chavePedidoPendente],
@@ -141,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (\Throwable $erro) {
             error_log($erro->getMessage());
             http_response_code(503);
-            $mensagemErro = 'Não foi possível registrar sua compra. Seus itens continuam no carrinho; tente novamente.';
+            $mensagemErro = 'Não foi possível registrar sua compra. Seus itens continuam disponíveis para uma nova tentativa; tente novamente.';
         }
     } else {
         http_response_code(400);

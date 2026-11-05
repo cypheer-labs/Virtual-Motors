@@ -106,11 +106,13 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
 );
 [$recentUsuarios, $recentUsuariosError] = dashboard_query(
     $pdo,
-    'SELECT id_usuario, nome, email, tipo_usuario FROM usuario ORDER BY id_usuario DESC LIMIT 5'
+    'SELECT id_usuario, uid AS UID, nome, email, tipo_usuario FROM usuario ORDER BY id_usuario DESC LIMIT 5'
 );
 [$recentPedidos, $recentPedidosError] = dashboard_query(
     $pdo,
-    'SELECT id_pedido, id_usuario, data_entrega, valor_total, pagamento, status_pedido FROM pedido ORDER BY id_pedido DESC LIMIT 5'
+    'SELECT p.id_pedido, p.id_usuario, u.uid AS UID, p.data_entrega, p.valor_total, p.pagamento, p.status_pedido '
+    . 'FROM pedido p JOIN usuario u ON u.id_usuario = p.id_usuario '
+    . 'ORDER BY p.id_pedido DESC LIMIT 5'
 );
 ?>
 <!DOCTYPE html>
@@ -131,6 +133,7 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
     <a href="dashboard.php" aria-current="page">Painel</a>
     <a href="produtos.php">Produtos</a>
     <a href="usuarios.php">Usuários</a>
+    <a href="pedidos.php">Pedidos</a>
     <a class="sair" href="../index.php">Voltar à loja</a>
 </nav>
 
@@ -182,7 +185,10 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
     </section>
 
     <section class="admin-section">
-        <div class="admin-section-heading"><h2>Últimos pedidos</h2></div>
+        <div class="admin-section-heading">
+            <h2>Últimos pedidos</h2>
+            <a href="pedidos.php">Gerenciar pedidos</a>
+        </div>
         <?php dashboard_table($recentPedidos, $recentPedidosError, 'Nenhum pedido registrado ainda.'); ?>
     </section>
 </main>

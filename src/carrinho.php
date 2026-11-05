@@ -1,15 +1,42 @@
 <?php
 
 use VirtualMotors\Repository\CarroRepository;
+use VirtualMotors\Repository\CarrinhoRepository;
 
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/carrorepository.php';
+require_once __DIR__ . '/carrinhorepository.php';
+require_once __DIR__ . '/authsession.php';
 
 session_start();
+
+validar_sessao_usuario();
 
 $chaveCarrinho = 'virtual_motors_carrinho';
 if (!isset($_SESSION[$chaveCarrinho]) || !is_array($_SESSION[$chaveCarrinho])) {
     $_SESSION[$chaveCarrinho] = [];
+}
+
+$idUsuarioSessao = filter_var($_SESSION['usuario_id'] ?? null, FILTER_VALIDATE_INT);
+$usuarioAutenticado = is_int($idUsuarioSessao) && $idUsuarioSessao > 0;
+$idUsuario = $usuarioAutenticado ? $idUsuarioSessao : 0;
+$carrinhoRepository = null;
+if ($usuarioAutenticado) {
+    try {
+        $carrinhoRepository = new CarrinhoRepository();
+        if ((int) ($_SESSION['virtual_motors_carrinho_usuario_id'] ?? 0) !== $idUsuario) {
+            $_SESSION[$chaveCarrinho] = $carrinhoRepository->combinar(
+                $carrinhoRepository->buscar($idUsuario),
+                $_SESSION[$chaveCarrinho]
+            );
+            $_SESSION['virtual_motors_carrinho_usuario_id'] = $idUsuario;
+            $carrinhoRepository->salvar($idUsuario, $_SESSION[$chaveCarrinho]);
+        }
+    } catch (Throwable $erro) {
+        error_log($erro->getMessage());
+        $_SESSION['virtual_motors_carrinho_mensagem'] =
+            'Não foi possível sincronizar seu carrinho. Tente novamente; seus itens desta sessão continuam disponíveis.';
+    }
 }
 
 $mensagem = $_SESSION['virtual_motors_carrinho_mensagem'] ?? '';
@@ -17,10 +44,6 @@ unset($_SESSION['virtual_motors_carrinho_mensagem']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = $_POST['acao'] ?? '';
-    if ($acao === 'adicionar' && empty($_SESSION['usuario_email'])) {
-        header('Location: login.php');
-        exit;
-    }
 
     $compraAdicionada = false;
 
@@ -71,6 +94,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['virtual_motors_carrinho_mensagem'] = 'Carrinho atualizado.';
     }
 
+    if ($usuarioAutenticado) {
+        if ($carrinhoRepository !== null) {
+            try {
+                $carrinhoRepository->salvar($idUsuario, $_SESSION[$chaveCarrinho]);
+            } catch (Throwable $erro) {
+                error_log($erro->getMessage());
+                $_SESSION['virtual_motors_carrinho_mensagem'] =
+                    'Não foi possível salvar as alterações do carrinho na sua conta. Tente novamente.';
+            }
+        } else {
+            $_SESSION['virtual_motors_carrinho_mensagem'] =
+                'Não foi possível salvar as alterações do carrinho na sua conta. Tente novamente.';
+        }
+    }
+
     header('Location: ' . ($acao === 'comprar' && $compraAdicionada ? 'pagamento.php' : 'carrinho.php'));
     exit;
 }
@@ -108,6 +146,13 @@ $totalCarrinho = 0;
         <div class="cart-title-area">
             <span>Seu carrinho</span>
             <h1>Carrinho de compras</h1>
+            <p class="cart-persistence-note">
+                <?php if ($usuarioAutenticado) : ?>
+                    Seus itens ficam salvos na sua conta.
+                <?php else : ?>
+                    <a href="login.php">Entre na sua conta</a> para manter seus itens salvos.
+                <?php endif; ?>
+            </p>
         </div>
 
         <?php if ($mensagem !== '') : ?>

@@ -195,10 +195,11 @@ $busca = is_string($buscaEnviada) ? trim($buscaEnviada) : '';
 $paginaEnviada = filter_var($_GET['pagina'] ?? 1, FILTER_VALIDATE_INT);
 $pagina = $paginaEnviada === false || $paginaEnviada < 1 ? 1 : $paginaEnviada;
 $porPagina = 50;
-$condicao = '';
+$clausulaBusca = '';
 $parametrosBusca = [];
 if ($busca !== '') {
-    $condicao = ' WHERE nome LIKE :nome OR cor LIKE :cor OR jogo_origem LIKE :jogo_origem';
+    // A cláusula contém apenas SQL fixo; o texto da busca usa parâmetros vinculados.
+    $clausulaBusca = ' WHERE nome LIKE :nome OR cor LIKE :cor OR jogo_origem LIKE :jogo_origem';
     $termo = '%' . $busca . '%';
     $parametrosBusca = [
         'nome' => $termo,
@@ -208,7 +209,7 @@ if ($busca !== '') {
 }
 
 try {
-    $contagem = $pdo->prepare('SELECT COUNT(*) FROM carros' . $condicao);
+    $contagem = $pdo->prepare('SELECT COUNT(*) FROM carros' . $clausulaBusca);
     $contagem->execute($parametrosBusca);
     $totalProdutos = (int) $contagem->fetchColumn();
     $totalPaginas = max(1, (int) ceil($totalProdutos / $porPagina));
@@ -217,7 +218,7 @@ try {
 
     $consultaProdutos = $pdo->prepare(
         'SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url FROM carros'
-        . $condicao
+        . $clausulaBusca
         . ' ORDER BY id_carro DESC LIMIT ' . $porPagina . ' OFFSET ' . $offset
     );
     $consultaProdutos->execute($parametrosBusca);
@@ -287,6 +288,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
     <a href="dashboard.php">Painel</a>
     <a href="produtos.php" aria-current="page">Produtos</a>
     <a href="usuarios.php">Usuários</a>
+    <a href="pedidos.php">Pedidos</a>
     <a class="sair" href="../index.php">Voltar à loja</a>
 </nav>
 

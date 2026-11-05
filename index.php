@@ -1,5 +1,7 @@
 <?php
 session_start();
+require_once __DIR__ . '/src/authsession.php';
+validar_sessao_usuario();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -356,6 +358,10 @@ session_start();
 
                 <a href="./src/sobre-nos.php">
                     Sobre nós
+                </a>
+
+                <a href="./src/termos-de-uso.php">
+                    Termos de uso
                 </a>
 
                 <a href="#veiculos">
