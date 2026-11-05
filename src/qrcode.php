@@ -13,6 +13,7 @@ $chaveTema = 'virtual_motors_pedido_tema';
 $chaveCarrinho = 'virtual_motors_carrinho';
 $chaveSucesso = 'virtual_motors_pagamento_sucesso';
 $mensagemErro = null;
+$linkRetornoErro = 'pagamento.php';
 $pagamentoConcluido = !empty($_SESSION[$chaveSucesso]);
 unset($_SESSION[$chaveSucesso]);
 
@@ -112,6 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $idCarro = (int) $veiculo['id_carro'];
                 $quantidade = (int) ($itensPedido[$idCarro] ?? 0);
                 $preco = (float) $veiculo['preco'];
+                if ($quantidade > (int) $veiculo['estoque']) {
+                    throw new \DomainException(
+                        'O estoque mudou e não há unidades suficientes para este pedido. Revise seu carrinho.'
+                    );
+                }
                 if ($quantidade < 1 || $preco < 0) {
                     throw new \RuntimeException('Os itens do pedido são inválidos.');
                 }
@@ -154,7 +160,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (\Throwable $erro) {
             error_log($erro->getMessage());
             http_response_code(503);
-            $mensagemErro = 'Não foi possível registrar sua compra. Seus itens continuam disponíveis para uma nova tentativa; tente novamente.';
+            if ($erro instanceof \DomainException) {
+                $linkRetornoErro = '../index.php#veiculos';
+            }
+            $mensagemErro = $erro instanceof \DomainException
+                ? $erro->getMessage()
+                : 'Não foi possível registrar sua compra. Seus itens continuam disponíveis para uma nova tentativa; tente novamente.';
         }
     } else {
         http_response_code(400);
@@ -236,7 +247,9 @@ if ($pagamentoConcluido) {
                     <p class="cart-message cart-error" role="alert">
                         <?= htmlspecialchars($mensagemErro, ENT_QUOTES, 'UTF-8') ?>
                     </p>
-                    <a class="button button-outline" href="pagamento.php">Voltar ao pagamento</a>
+                    <a class="button button-outline" href="<?= htmlspecialchars($linkRetornoErro, ENT_QUOTES, 'UTF-8') ?>">
+                        <?= $linkRetornoErro === 'pagamento.php' ? 'Voltar ao pagamento' : 'Voltar aos veículos' ?>
+                    </a>
                 <?php else : ?>
                     <form method="post" action="qrcode.php">
                         <input type="hidden" name="acao" value="confirmar">

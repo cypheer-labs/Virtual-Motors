@@ -183,7 +183,10 @@ validar_sessao_usuario();
 
                 </div>
 
-
+                <p class="vehicle-stock-note">
+                    O estoque é atualizado manualmente pela administração; pedidos demonstrativos
+                    não alteram essa quantidade.
+                </p>
                 <p id="vehicleStatus" class="vehicle-status" role="status" aria-live="polite"></p>
                 <div class="vehicle-grid" id="vehicleGrid"></div>
 

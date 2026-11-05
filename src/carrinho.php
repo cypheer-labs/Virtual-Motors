@@ -59,9 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['virtual_motors_carrinho_mensagem'] = 'Este veículo não está mais disponível.';
                 } else {
                     $idCarro = (int) $veiculos[0]['id_carro'];
-                    $_SESSION[$chaveCarrinho][$idCarro] = (int) ($_SESSION[$chaveCarrinho][$idCarro] ?? 0) + 1;
-                    $_SESSION['virtual_motors_carrinho_mensagem'] = 'Veículo adicionado ao carrinho.';
-                    $compraAdicionada = true;
+                    $quantidadeAtual = (int) ($_SESSION[$chaveCarrinho][$idCarro] ?? 0);
+                    $estoqueDisponivel = (int) $veiculos[0]['estoque'];
+                    if ($quantidadeAtual >= $estoqueDisponivel) {
+                        $_SESSION['virtual_motors_carrinho_mensagem'] =
+                            'A quantidade solicitada excede o estoque disponível.';
+                    } else {
+                        $_SESSION[$chaveCarrinho][$idCarro] = $quantidadeAtual + 1;
+                        $_SESSION['virtual_motors_carrinho_mensagem'] = 'Veículo adicionado ao carrinho.';
+                        $compraAdicionada = true;
+                    }
                 }
             } catch (PDOException $erro) {
                 error_log($erro->getMessage());
@@ -76,22 +83,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($acao === 'atualizar') {
         $quantidades = $_POST['quantidade'] ?? [];
-        if (is_array($quantidades)) {
-            foreach ($quantidades as $id => $quantidadeEnviada) {
-                $idCarro = filter_var($id, FILTER_VALIDATE_INT);
-                $quantidade = filter_var($quantidadeEnviada, FILTER_VALIDATE_INT);
-                if ($idCarro === false || !array_key_exists($idCarro, $_SESSION[$chaveCarrinho]) || $quantidade === false) {
-                    continue;
+        if (is_array($quantidades) && $_SESSION[$chaveCarrinho] !== []) {
+            try {
+                $veiculosNoCarrinho = (new CarroRepository())->buscarPorIds(
+                    array_keys($_SESSION[$chaveCarrinho])
+                );
+                $estoques = [];
+                foreach ($veiculosNoCarrinho as $veiculo) {
+                    $estoques[(int) $veiculo['id_carro']] = (int) $veiculo['estoque'];
                 }
 
-                if ($quantidade < 1) {
-                    unset($_SESSION[$chaveCarrinho][$idCarro]);
-                } else {
-                    $_SESSION[$chaveCarrinho][$idCarro] = $quantidade;
+                $excedeEstoque = false;
+                foreach ($quantidades as $id => $quantidadeEnviada) {
+                    $idCarro = filter_var($id, FILTER_VALIDATE_INT);
+                    $quantidade = filter_var($quantidadeEnviada, FILTER_VALIDATE_INT);
+                    if (
+                        $idCarro === false
+                        || !array_key_exists($idCarro, $_SESSION[$chaveCarrinho])
+                        || $quantidade === false
+                    ) {
+                        continue;
+                    }
+
+                    if ($quantidade < 1) {
+                        unset($_SESSION[$chaveCarrinho][$idCarro]);
+                    } elseif ($quantidade > ($estoques[$idCarro] ?? 0)) {
+                        $excedeEstoque = true;
+                    } else {
+                        $_SESSION[$chaveCarrinho][$idCarro] = $quantidade;
+                    }
                 }
+                $_SESSION['virtual_motors_carrinho_mensagem'] = $excedeEstoque
+                    ? 'Uma ou mais quantidades excedem o estoque. Revise os itens antes de continuar.'
+                    : 'Carrinho atualizado.';
+            } catch (PDOException $erro) {
+                error_log($erro->getMessage());
+                $_SESSION['virtual_motors_carrinho_mensagem'] =
+                    'Não foi possível validar o estoque. Tente novamente.';
             }
+        } else {
+            $_SESSION['virtual_motors_carrinho_mensagem'] = 'Carrinho atualizado.';
         }
-        $_SESSION['virtual_motors_carrinho_mensagem'] = 'Carrinho atualizado.';
     }
 
     if ($usuarioAutenticado) {
@@ -122,6 +154,15 @@ if ($_SESSION[$chaveCarrinho] !== []) {
         error_log($erro->getMessage());
         http_response_code(500);
         $erroBanco = true;
+    }
+}
+
+$carrinhoComEstoqueInsuficiente = false;
+foreach ($veiculos as $veiculo) {
+    $idCarro = (int) $veiculo['id_carro'];
+    if ((int) ($_SESSION[$chaveCarrinho][$idCarro] ?? 0) > (int) $veiculo['estoque']) {
+        $carrinhoComEstoqueInsuficiente = true;
+        break;
     }
 }
 
@@ -158,6 +199,11 @@ $totalCarrinho = 0;
         <?php if ($mensagem !== '') : ?>
             <p class="cart-message" role="status"><?= htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') ?></p>
         <?php endif; ?>
+        <?php if ($carrinhoComEstoqueInsuficiente) : ?>
+            <p class="cart-message cart-error" role="alert">
+                Há itens sem estoque suficiente. Ajuste ou remova essas quantidades antes de continuar.
+            </p>
+        <?php endif; ?>
 
         <?php if ($erroBanco) : ?>
             <p class="cart-message cart-error" role="alert">Não foi possível carregar o carrinho. Verifique a conexão com o banco de dados.</p>
@@ -191,9 +237,18 @@ $totalCarrinho = 0;
                                             <span class="tag"><?= htmlspecialchars($veiculo['cor'], ENT_QUOTES, 'UTF-8') ?></span>
                                         <?php endif; ?>
                                     </div>
+                                    <p class="cart-stock">Disponível: <?= (int) $veiculo['estoque'] ?> unidade(s)</p>
                                     <label class="cart-quantity">
                                         Quantidade
-                                        <input form="atualizar-carrinho" type="number" name="quantidade[<?= $idCarro ?>]" min="0" step="1" value="<?= $quantidade ?>">
+                                        <input
+                                            form="atualizar-carrinho"
+                                            type="number"
+                                            name="quantidade[<?= $idCarro ?>]"
+                                            min="0"
+                                            max="<?= (int) $veiculo['estoque'] ?>"
+                                            step="1"
+                                            value="<?= $quantidade ?>"
+                                        >
                                     </label>
                                 </div>
                             </div>
@@ -217,7 +272,13 @@ $totalCarrinho = 0;
                         <strong>R$ <?= number_format($totalCarrinho, 2, ',', '.') ?></strong>
                     </div>
                     <p>Revise seus itens e informe o endereço na próxima etapa.</p>
-                    <a href="pagamento.php" class="button button-primary">Ir para pagamento</a>
+                    <?php if ($carrinhoComEstoqueInsuficiente) : ?>
+                        <span class="button button-primary cart-checkout-disabled" aria-disabled="true">
+                            Estoque insuficiente
+                        </span>
+                    <?php else : ?>
+                        <a href="pagamento.php" class="button button-primary">Ir para pagamento</a>
+                    <?php endif; ?>
                     <a href="../index.php#veiculos" class="cart-continue-link">Continuar comprando</a>
                 </aside>
             </div>

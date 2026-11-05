@@ -66,6 +66,7 @@ $valoresFormulario = [
     'nome' => '',
     'cor' => '',
     'preco' => '',
+    'estoque' => '0',
     'jogo_origem' => '',
     'imagem_url' => '',
 ];
@@ -118,10 +119,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'nome' => produtos_post_string('nome'),
                 'cor' => produtos_post_string('cor'),
                 'preco' => produtos_post_string('preco'),
+                'estoque' => produtos_post_string('estoque'),
                 'jogo_origem' => produtos_post_string('jogo_origem'),
                 'imagem_url' => produtos_post_string('imagem_url'),
             ];
             $idCarro = filter_var($_POST['id_carro'] ?? null, FILTER_VALIDATE_INT);
+            $estoque = filter_var(
+                $valoresFormulario['estoque'],
+                FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 0, 'max_range' => 4294967295]]
+            );
             $precoNormalizado = str_replace(',', '.', $valoresFormulario['preco']);
 
             if ($acao === 'atualizar' && ($idCarro === false || $idCarro === null || $idCarro < 1)) {
@@ -132,6 +139,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if (strlen($valoresFormulario['cor']) > 30) {
                 throw new InvalidArgumentException('A cor deve ter até 30 caracteres.');
+            }
+            if ($estoque === false) {
+                throw new InvalidArgumentException(
+                    'Informe uma quantidade de estoque inteira entre 0 e 4.294.967.295.'
+                );
             }
             if (!preg_match('/^\d{1,8}(?:\.\d{1,2})?$/', $precoNormalizado) || (float) $precoNormalizado <= 0) {
                 throw new InvalidArgumentException('Informe um preço maior que zero, com até duas casas decimais.');
@@ -152,13 +164,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'nome' => $valoresFormulario['nome'],
                 'cor' => $valoresFormulario['cor'] !== '' ? $valoresFormulario['cor'] : null,
                 'preco' => $precoNormalizado,
+                'estoque' => $estoque,
                 'jogo_origem' => $valoresFormulario['jogo_origem'],
                 'imagem_url' => $valoresFormulario['imagem_url'] !== '' ? $valoresFormulario['imagem_url'] : null,
             ];
 
             if ($acao === 'criar') {
                 $salvar = $pdo->prepare(
-                    'INSERT INTO carros (nome, cor, preco, jogo_origem, imagem_url) VALUES (:nome, :cor, :preco, :jogo_origem, :imagem_url)'
+                    'INSERT INTO carros (nome, cor, preco, estoque, jogo_origem, imagem_url) '
+                    . 'VALUES (:nome, :cor, :preco, :estoque, :jogo_origem, :imagem_url)'
                 );
                 $salvar->execute($parametros);
                 $_SESSION['admin_produtos_mensagem'] = 'Produto cadastrado com sucesso.';
@@ -171,7 +185,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $parametros['id_carro'] = $idCarro;
                 $salvar = $pdo->prepare(
-                    'UPDATE carros SET nome = :nome, cor = :cor, preco = :preco, jogo_origem = :jogo_origem, imagem_url = :imagem_url WHERE id_carro = :id_carro'
+                    'UPDATE carros SET nome = :nome, cor = :cor, preco = :preco, estoque = :estoque, '
+                    . 'jogo_origem = :jogo_origem, imagem_url = :imagem_url WHERE id_carro = :id_carro'
                 );
                 $salvar->execute($parametros);
                 $_SESSION['admin_produtos_mensagem'] = 'Produto atualizado com sucesso.';
@@ -217,7 +232,7 @@ try {
     $offset = ($pagina - 1) * $porPagina;
 
     $consultaProdutos = $pdo->prepare(
-        'SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url FROM carros'
+        'SELECT id_carro, nome, cor, preco, estoque, jogo_origem, imagem_url FROM carros'
         . $clausulaBusca
         . ' ORDER BY id_carro DESC LIMIT ' . $porPagina . ' OFFSET ' . $offset
     );
@@ -237,7 +252,8 @@ $idEditarEnviado = filter_var($_GET['editar'] ?? null, FILTER_VALIDATE_INT);
 if ($idEditarEnviado !== false && $idEditarEnviado !== null && $idEditarEnviado > 0) {
     try {
         $consultaEdicao = $pdo->prepare(
-            'SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url FROM carros WHERE id_carro = :id_carro'
+            'SELECT id_carro, nome, cor, preco, estoque, jogo_origem, imagem_url '
+            . 'FROM carros WHERE id_carro = :id_carro'
         );
         $consultaEdicao->execute(['id_carro' => $idEditarEnviado]);
         $produtoEditando = $consultaEdicao->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -249,6 +265,7 @@ if ($idEditarEnviado !== false && $idEditarEnviado !== null && $idEditarEnviado 
                 'nome' => (string) ($produtoEditando['nome'] ?? ''),
                 'cor' => (string) ($produtoEditando['cor'] ?? ''),
                 'preco' => (string) ($produtoEditando['preco'] ?? ''),
+                'estoque' => (string) ($produtoEditando['estoque'] ?? '0'),
                 'jogo_origem' => (string) ($produtoEditando['jogo_origem'] ?? ''),
                 'imagem_url' => (string) ($produtoEditando['imagem_url'] ?? ''),
             ];
@@ -297,7 +314,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
         <a class="admin-button secondary" href="../index.php">← Voltar à página inicial</a>
     </div>
     <h1>Gerenciar produtos</h1>
-    <p class="admin-sub">Cadastre, pesquise e atualize os carros disponíveis no catálogo.</p>
+    <p class="admin-sub">Cadastre produtos e atualize manualmente suas quantidades de estoque.</p>
 
     <?php if ($mensagem !== '') : ?>
         <p class="admin-message<?= $erro ? ' error' : '' ?>" role="<?= $erro ? 'alert' : 'status' ?>"><?= produtos_escape($mensagem) ?></p>
@@ -327,6 +344,20 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
             <div class="admin-field">
                 <label for="preco">Preço (R$)</label>
                 <input id="preco" name="preco" inputmode="decimal" required value="<?= produtos_escape($valoresFormulario['preco']) ?>" placeholder="Ex.: 250000.00">
+            </div>
+            <div class="admin-field">
+                <label for="estoque">Quantidade em estoque</label>
+                <input
+                    id="estoque"
+                    name="estoque"
+                    type="number"
+                    min="0"
+                    max="4294967295"
+                    step="1"
+                    required
+                    value="<?= produtos_escape($valoresFormulario['estoque']) ?>"
+                >
+                <small>Estoque inicial zero; a quantidade é atualizada manualmente pelo administrador.</small>
             </div>
             <div class="admin-field">
                 <label for="jogo_origem">Jogo de origem</label>
@@ -373,6 +404,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
                         <th scope="col">Nome</th>
                         <th scope="col">Cor</th>
                         <th scope="col">Preço</th>
+                        <th scope="col">Estoque</th>
                         <th scope="col">Jogo de origem</th>
                         <th scope="col">Imagem</th>
                         <th scope="col">Ações</th>
@@ -385,6 +417,7 @@ $proximaPagina = $pagina < $totalPaginas ? $pagina + 1 : null;
                             <td><?= produtos_escape($produto['nome']) ?></td>
                             <td><?= produtos_escape($produto['cor'] ?? '') ?></td>
                             <td>R$ <?= number_format((float) $produto['preco'], 2, ',', '.') ?></td>
+                            <td><?= number_format((int) $produto['estoque'], 0, ',', '.') ?> unidade(s)</td>
                             <td><?= produtos_escape($produto['jogo_origem']) ?></td>
                             <td>
                                 <?php if (is_string($produto['imagem_url']) && produtos_imagem_url_valida($produto['imagem_url'])) : ?>

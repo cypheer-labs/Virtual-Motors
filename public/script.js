@@ -133,12 +133,12 @@ const vehicleImages = [
 ];
 
 const sampleVehicles = [
-    { id_carro: 1, nome: "Ferrari 488 GTB", cor: "Vermelho", preco: 2500000, jogo_origem: "Forza Horizon" },
-    { id_carro: 2, nome: "Lamborghini Huracán", cor: "Amarelo", preco: 3000000, jogo_origem: "Forza Horizon" },
-    { id_carro: 3, nome: "Porsche 911", cor: "Preto", preco: 1800000, jogo_origem: "Need for Speed" },
-    { id_carro: 4, nome: "Nissan Skyline GT-R", cor: "Azul", preco: 900000, jogo_origem: "Need for Speed" },
-    { id_carro: 5, nome: "BMW M4", cor: "Branco", preco: 1200000, jogo_origem: "Forza Horizon" },
-    { id_carro: 6, nome: "McLaren 720S", cor: "Laranja", preco: 2800000, jogo_origem: "Forza Horizon" }
+    { id_carro: 1, nome: "Ferrari 488 GTB", cor: "Vermelho", preco: 2500000, jogo_origem: "Forza Horizon", estoque: 0 },
+    { id_carro: 2, nome: "Lamborghini Huracán", cor: "Amarelo", preco: 3000000, jogo_origem: "Forza Horizon", estoque: 0 },
+    { id_carro: 3, nome: "Porsche 911", cor: "Preto", preco: 1800000, jogo_origem: "Need for Speed", estoque: 0 },
+    { id_carro: 4, nome: "Nissan Skyline GT-R", cor: "Azul", preco: 900000, jogo_origem: "Need for Speed", estoque: 0 },
+    { id_carro: 5, nome: "BMW M4", cor: "Branco", preco: 1200000, jogo_origem: "Forza Horizon", estoque: 0 },
+    { id_carro: 6, nome: "McLaren 720S", cor: "Laranja", preco: 2800000, jogo_origem: "Forza Horizon", estoque: 0 }
 ];
 
 function getVehicleImage(vehicle) {
@@ -182,7 +182,8 @@ function createVehicleCard(vehicle) {
 
     const badge = document.createElement("span");
     badge.className = "vehicle-badge";
-    badge.textContent = "Disponível";
+    const estoque = Math.max(0, Number(vehicle.estoque) || 0);
+    badge.textContent = estoque > 0 ? "Em estoque" : "Sem estoque";
 
     const totalReviews = Math.max(0, Number(vehicle.total_avaliacoes) || 0);
     const reviewBadge = document.createElement("span");
@@ -226,6 +227,10 @@ function createVehicleCard(vehicle) {
     description.className = "vehicle-description";
     description.textContent = vehicle.cor ? `Cor: ${vehicle.cor}` : "Cor não informada";
 
+    const stock = document.createElement("p");
+    stock.className = "vehicle-stock";
+    stock.textContent = `Disponível: ${estoque} unidade(s)`;
+
     const footer = document.createElement("div");
     footer.className = "vehicle-footer";
 
@@ -252,6 +257,7 @@ function createVehicleCard(vehicle) {
     addButton.type = "submit";
     addButton.title = "Adicionar ao carrinho";
     addButton.setAttribute("aria-label", `Adicionar ${vehicle.nome} ao carrinho`);
+    addButton.disabled = estoque < 1;
     const cartIcon = document.createElement("img");
     cartIcon.className = "cart-icon";
     cartIcon.src = "./assets/cart-icon.png";
@@ -279,6 +285,7 @@ function createVehicleCard(vehicle) {
     buyButton.type = "submit";
     buyButton.textContent = "Comprar agora";
     buyButton.setAttribute("aria-label", `Comprar ${vehicle.nome} sem adicionar ao carrinho`);
+    buyButton.disabled = estoque < 1;
     buyNow.append(directAction, directVehicleId, buyButton);
     buyNow.append(directAction, directVehicleId, buyButton);
 
@@ -287,7 +294,7 @@ function createVehicleCard(vehicle) {
     actions.className = "vehicle-actions";
     actions.append(buyNow, addToCart);
     footer.append(price, actions);
-    info.append(origin, name, rating, description, footer);
+    info.append(origin, name, rating, description, stock, footer);
     card.append(image, info);
 
     return card;

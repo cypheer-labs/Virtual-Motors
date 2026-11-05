@@ -176,6 +176,7 @@ A branch principal deve conter a versão integrada e revisada do projeto. Os nom
    - `database/migrations/20261103_add_profile_bio_and_box_color.sql`
    - `database/migrations/20261105_remove_profile_box_color.sql`
    - `database/migrations/20261105_create_avaliacao.sql`
+   - `database/migrations/20261105_add_product_stock.sql`
 
 6. Copie `config/database.config.php.example` para `config/database.config.php`.
 7. Preencha as credenciais do banco de dados local. O arquivo real contém configurações privadas e não deve ser versionado.

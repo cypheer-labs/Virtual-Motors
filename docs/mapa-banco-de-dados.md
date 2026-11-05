@@ -18,6 +18,7 @@ as migrations alteram um banco que já existe.
 | [`database/migrations/20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql) | Converte `carros` para InnoDB, necessário para que os itens do pedido respeitem a chave estrangeira. | Após a migration de histórico, em bancos nos quais `carros` ainda usa MyISAM. |
 | [`database/migrations/20261102_add_account_uid_and_persistent_cart.sql`](../database/migrations/20261102_add_account_uid_and_persistent_cart.sql) | Adiciona um UID numérico exclusivo de oito ou mais dígitos às contas e cria o carrinho persistente por usuário e veículo. | Após as migrations anteriores, antes de usar cadastro, login, carrinho ou checkout atualizados. |
 | [`database/migrations/20261102_add_auth_session_version.sql`](../database/migrations/20261102_add_auth_session_version.sql) | Adiciona a versão de autenticação usada para invalidar sessões quando a senha é redefinida. | Aplicada automaticamente junto às migrations de conta na primeira conexão ao banco. |
+| [`database/migrations/20261105_add_product_stock.sql`](../database/migrations/20261105_add_product_stock.sql) | Adiciona `carros.estoque`, inteiro não negativo com valor inicial zero. | Aplicada automaticamente na primeira conexão; o administrador informa manualmente as quantidades disponíveis. |
 
 ### Ordem de instalação local
 
@@ -43,12 +44,15 @@ as migrations alteram um banco que já existe.
 8. A coluna `auth_version` é adicionada automaticamente pela aplicação. Quando
    um administrador redefine uma senha, a versão é incrementada e as sessões
    anteriores da conta são invalidadas no próximo acesso.
+9. A coluna `estoque` também é adicionada automaticamente na primeira conexão.
+   Produtos existentes começam com zero unidades; ajuste as quantidades em
+   `admin/produtos.php`. Os pedidos não alteram o estoque automaticamente.
 
 Na hospedagem por FTP, depois do upload de `src/database.php` e
 `src/schemamigrationrunner.php`, essa migration é aplicada automaticamente na
 primeira conexão ao banco. O servidor deve ter `carros` em InnoDB e a conta do
-MySQL precisa ter permissões para criar tabela e alterar `usuario`. A migration
-é registrada em `vm_schema_migrations` e não é repetida.
+MySQL precisa ter permissões para criar tabela e alterar `usuario` e `carros`.
+As migrations são registradas em `vm_schema_migrations` e não são repetidas.
 
 O snapshot `dump/dump_server/if0_43124603_loja_carros.sql` não é a base recomendada
 para uma instalação nova: ele representa o servidor em uma data anterior, usa
@@ -90,7 +94,7 @@ usuario (1) ── (N) carrinho_usuario (N) ── (1) carros
 - [`src/carrinhorepository.php`](../src/carrinhorepository.php) carrega,
   combina e salva itens em `carrinho_usuario`.
 - [`src/carrorepository.php`](../src/carrorepository.php) consulta `carros` e
-  lê `imagem_url`.
+  lê `imagem_url` e `estoque`.
 - [`src/pedidorepository.php`](../src/pedidorepository.php) grava e consulta
   `pedido` e `item_pedido`; usa as colunas adicionadas por
   [`20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql).
