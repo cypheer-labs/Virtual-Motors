@@ -57,7 +57,7 @@ class CarroRepository
         $parametros = [];
 
         if ($busca !== '') {
-            $condicoes[] = '(nome LIKE :nome OR cor LIKE :cor OR jogo_origem LIKE :jogo_origem)';
+            $condicoes[] = '(c.nome LIKE :nome OR c.cor LIKE :cor OR c.jogo_origem LIKE :jogo_origem)';
             $termo = '%' . $busca . '%';
             $parametros['nome'] = $termo;
             $parametros['cor'] = $termo;
@@ -65,15 +65,23 @@ class CarroRepository
         }
 
         if ($precoMaximo !== null) {
-            $condicoes[] = 'preco <= :preco_maximo';
+            $condicoes[] = 'c.preco <= :preco_maximo';
             $parametros['preco_maximo'] = $precoMaximo;
         }
 
-        $sql = 'SELECT id_carro, nome, cor, preco, jogo_origem, imagem_url FROM carros';
+        $sql = 'SELECT c.id_carro, c.nome, c.cor, c.preco, c.jogo_origem, c.imagem_url, '
+            . 'COALESCE(avaliacoes.total_avaliacoes, 0) AS total_avaliacoes, '
+            . 'avaliacoes.media_avaliacao '
+            . 'FROM carros c '
+            . 'LEFT JOIN ('
+            . 'SELECT ip.id_carro, COUNT(a.id_avaliacao) AS total_avaliacoes, AVG(a.estrelas) AS media_avaliacao '
+            . 'FROM item_pedido ip INNER JOIN avaliacao a ON a.id_pedido = ip.id_pedido '
+            . 'GROUP BY ip.id_carro'
+            . ') avaliacoes ON avaliacoes.id_carro = c.id_carro';
         if ($condicoes !== []) {
             $sql .= ' WHERE ' . implode(' AND ', $condicoes);
         }
-        $sql .= ' ORDER BY nome';
+        $sql .= ' ORDER BY c.nome';
 
         $consulta = Database::getConnection()->prepare($sql);
         $consulta->execute($parametros);
@@ -115,6 +123,10 @@ class CarroRepository
         ];
 
         foreach ($veiculos as &$veiculo) {
+            $veiculo['total_avaliacoes'] = (int) ($veiculo['total_avaliacoes'] ?? 0);
+            $veiculo['media_avaliacao'] = isset($veiculo['media_avaliacao'])
+                ? (float) $veiculo['media_avaliacao']
+                : null;
             $nome = strtolower((string) $veiculo['nome']);
             $veiculo['imagem'] = $imagens['ferrari'];
             foreach ($imagens as $modelo => $imagem) {

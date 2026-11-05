@@ -172,7 +172,13 @@ function createVehicleCard(vehicle) {
     badge.className = "vehicle-badge";
     badge.textContent = "Disponível";
 
-    image.append(vehicleImage, badge);
+    const totalReviews = Math.max(0, Number(vehicle.total_avaliacoes) || 0);
+    const reviewBadge = document.createElement("span");
+    reviewBadge.className = "vehicle-review-badge";
+    reviewBadge.textContent = `${totalReviews} ${totalReviews === 1 ? "avaliação" : "avaliações"}`;
+    reviewBadge.setAttribute("aria-label", reviewBadge.textContent);
+
+    image.append(vehicleImage, badge, reviewBadge);
 
     const info = document.createElement("div");
     info.className = "vehicle-info";
@@ -183,6 +189,26 @@ function createVehicleCard(vehicle) {
 
     const name = document.createElement("h3");
     name.textContent = vehicle.nome;
+
+    const rating = document.createElement("p");
+    rating.className = "vehicle-rating";
+    const average = Number(vehicle.media_avaliacao);
+    if (totalReviews > 0 && Number.isFinite(average)) {
+        const ratingStar = document.createElement("span");
+        ratingStar.className = "vehicle-rating-star";
+        ratingStar.textContent = "★";
+        ratingStar.setAttribute("aria-hidden", "true");
+
+        const ratingValue = document.createElement("span");
+        ratingValue.textContent = `${average.toLocaleString("pt-BR", {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1
+        })}/5`;
+        ratingValue.setAttribute("aria-label", `Média de ${ratingValue.textContent}`);
+        rating.append(ratingStar, ratingValue);
+    } else {
+        rating.textContent = "Sem avaliações";
+    }
 
     const description = document.createElement("p");
     description.className = "vehicle-description";
@@ -249,7 +275,7 @@ function createVehicleCard(vehicle) {
     actions.className = "vehicle-actions";
     actions.append(buyNow, addToCart);
     footer.append(price, actions);
-    info.append(origin, name, description, footer);
+    info.append(origin, name, rating, description, footer);
     card.append(image, info);
 
     return card;
