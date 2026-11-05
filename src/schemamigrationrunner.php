@@ -9,6 +9,7 @@ class SchemaMigrationRunner
 {
     private const ACCOUNT_UID_MIGRATION = '20261102_add_account_uid_and_persistent_cart';
     private const AUTH_SESSION_MIGRATION = '20261102_add_auth_session_version';
+    private const PRODUCT_STOCK_MIGRATION = '20261105_add_product_stock';
     private const LOCK_NAME = 'virtual_motors_schema_migration';
 
     public static function run(PDO $connection): void
@@ -16,6 +17,7 @@ class SchemaMigrationRunner
         if (
             self::migrationIsApplied($connection, self::ACCOUNT_UID_MIGRATION)
             && self::migrationIsApplied($connection, self::AUTH_SESSION_MIGRATION)
+            && self::migrationIsApplied($connection, self::PRODUCT_STOCK_MIGRATION)
         ) {
             return;
         }
@@ -38,6 +40,7 @@ class SchemaMigrationRunner
             if (
                 self::migrationIsApplied($connection, self::ACCOUNT_UID_MIGRATION)
                 && self::migrationIsApplied($connection, self::AUTH_SESSION_MIGRATION)
+                && self::migrationIsApplied($connection, self::PRODUCT_STOCK_MIGRATION)
             ) {
                 return;
             }
@@ -49,6 +52,10 @@ class SchemaMigrationRunner
             if (!self::migrationIsApplied($connection, self::AUTH_SESSION_MIGRATION)) {
                 self::applyAuthSessionVersion($connection);
                 self::registerMigration($connection, self::AUTH_SESSION_MIGRATION);
+            }
+            if (!self::migrationIsApplied($connection, self::PRODUCT_STOCK_MIGRATION)) {
+                self::applyProductStock($connection);
+                self::registerMigration($connection, self::PRODUCT_STOCK_MIGRATION);
             }
         } finally {
             $connection->query("SELECT RELEASE_LOCK('" . self::LOCK_NAME . "')");
@@ -112,6 +119,19 @@ class SchemaMigrationRunner
         if (!self::columnExists($connection, 'usuario', 'auth_version')) {
             $connection->exec(
                 'ALTER TABLE usuario ADD COLUMN auth_version INT UNSIGNED NOT NULL DEFAULT 1'
+            );
+        }
+    }
+
+    private static function applyProductStock(PDO $connection): void
+    {
+        if (!self::tableExists($connection, 'carros')) {
+            throw new RuntimeException('A tabela carros precisa existir antes da migration de estoque.');
+        }
+
+        if (!self::columnExists($connection, 'carros', 'estoque')) {
+            $connection->exec(
+                'ALTER TABLE carros ADD COLUMN estoque INT UNSIGNED NOT NULL DEFAULT 0'
             );
         }
     }

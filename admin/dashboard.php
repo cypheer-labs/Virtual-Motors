@@ -82,10 +82,14 @@ function dashboard_table(array $rows, ?string $error, string $emptyMessage): voi
 
 [$carroStats, $carroStatsError] = dashboard_query(
     $pdo,
-    'SELECT COUNT(*) AS total, COALESCE(AVG(preco), 0) AS media FROM carros'
+    'SELECT COUNT(*) AS total, COALESCE(AVG(preco), 0) AS media, '
+    . 'COALESCE(SUM(estoque), 0) AS unidades_estoque, '
+    . 'COALESCE(SUM(estoque = 0), 0) AS produtos_sem_estoque FROM carros'
 );
 $totalCarros = (int) ($carroStats[0]['total'] ?? 0);
 $precoMedio = (float) ($carroStats[0]['media'] ?? 0);
+$unidadesEstoque = (int) ($carroStats[0]['unidades_estoque'] ?? 0);
+$produtosSemEstoque = (int) ($carroStats[0]['produtos_sem_estoque'] ?? 0);
 
 [$usuarioStats, $usuarioStatsError] = dashboard_query(
     $pdo,
@@ -102,7 +106,8 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
 
 [$recentCarros, $recentCarrosError] = dashboard_query(
     $pdo,
-    'SELECT id_carro, nome, cor, preco, jogo_origem FROM carros ORDER BY id_carro DESC LIMIT 5'
+    'SELECT id_carro, nome, cor, preco, estoque, jogo_origem '
+    . 'FROM carros ORDER BY id_carro DESC LIMIT 5'
 );
 [$recentUsuarios, $recentUsuariosError] = dashboard_query(
     $pdo,
@@ -149,7 +154,11 @@ $totalPedidos = (int) ($pedidoStats[0]['total'] ?? 0);
             <div class="admin-indicator-value"><?= $carroStatsError !== null ? '–' : $totalCarros ?></div>
             <div class="admin-indicator-label">Carros cadastrados</div>
             <div class="admin-indicator-note">
-                <?= $carroStatsError !== null ? dashboard_escape($carroStatsError) : 'Preço médio: R$ ' . number_format($precoMedio, 2, ',', '.') ?>
+                <?= $carroStatsError !== null
+                    ? dashboard_escape($carroStatsError)
+                    : 'Preço médio: R$ ' . number_format($precoMedio, 2, ',', '.')
+                        . ' · Estoque: ' . $unidadesEstoque . ' unidade(s); '
+                        . $produtosSemEstoque . ' produto(s) sem estoque' ?>
             </div>
         </article>
         <article class="admin-indicator">
