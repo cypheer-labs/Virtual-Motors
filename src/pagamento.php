@@ -106,6 +106,7 @@ if (!$modoVisualizacao && !$erroBanco && !$estoqueInsuficiente && $veiculos !== 
 <!DOCTYPE html>
 <html lang="pt-BR"<?= $temaVisualizacao !== null ? ' data-theme="' . htmlspecialchars($temaVisualizacao, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
 <head>
+    <?php require __DIR__ . '/gtm.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
