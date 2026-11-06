@@ -3362,6 +3362,33 @@ select {
     padding: 20px 22px;
 }
 
+.review-item-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.review-product-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.review-product-link {
+    min-height: 40px;
+    padding: 10px 14px;
+    font-size: 13px;
+}
+
+.vehicle-card-target {
+    outline: 3px solid var(--red);
+    outline-offset: 3px;
+}
+
 .review-item header {
     display: flex;
     flex-wrap: wrap;

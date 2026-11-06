@@ -17,19 +17,60 @@ class AvaliacaoRepository
     public function listarTodas(): array
     {
         $consulta = $this->connection->query(
-            'SELECT a.estrelas, a.descricao, a.criado_em, u.id_usuario, u.nome, u.foto_perfil, '
+            'SELECT a.id_avaliacao, a.estrelas, a.descricao, a.criado_em, u.id_usuario, u.nome, u.foto_perfil, '
             . 'p.criado_em AS data_compra, '
-            . '(SELECT GROUP_CONCAT(DISTINCT COALESCE(NULLIF(ip.nome_carro, \'\'), c.nome) '
-            . 'ORDER BY COALESCE(NULLIF(ip.nome_carro, \'\'), c.nome) SEPARATOR \', \') '
-            . 'FROM item_pedido ip LEFT JOIN carros c ON c.id_carro = ip.id_carro '
-            . 'WHERE ip.id_pedido = p.id_pedido) AS produtos '
+            . 'ip.id_carro, COALESCE(NULLIF(ip.nome_carro, \'\'), c.nome) AS nome_produto '
             . 'FROM avaliacao a '
             . 'INNER JOIN usuario u ON u.id_usuario = a.id_usuario '
             . 'INNER JOIN pedido p ON p.id_pedido = a.id_pedido '
-            . 'ORDER BY a.criado_em DESC, a.id_avaliacao DESC'
+            . 'LEFT JOIN item_pedido ip ON ip.id_pedido = p.id_pedido '
+            . 'LEFT JOIN carros c ON c.id_carro = ip.id_carro '
+            . 'ORDER BY a.criado_em DESC, a.id_avaliacao DESC, nome_produto'
         );
 
-        return $consulta->fetchAll();
+        $avaliacoes = [];
+        foreach ($consulta->fetchAll(PDO::FETCH_ASSOC) as $linha) {
+            $idAvaliacao = (int) $linha['id_avaliacao'];
+            if (!isset($avaliacoes[$idAvaliacao])) {
+                $avaliacoes[$idAvaliacao] = [
+                    'estrelas' => (int) $linha['estrelas'],
+                    'descricao' => $linha['descricao'],
+                    'criado_em' => $linha['criado_em'],
+                    'id_usuario' => (int) $linha['id_usuario'],
+                    'nome' => $linha['nome'],
+                    'foto_perfil' => $linha['foto_perfil'],
+                    'data_compra' => $linha['data_compra'],
+                    'produtos' => [],
+                    'veiculos' => [],
+                ];
+            }
+
+            $nomeProduto = $linha['nome_produto'];
+            if (!is_string($nomeProduto) || $nomeProduto === '') {
+                continue;
+            }
+
+            $idCarro = $linha['id_carro'] === null ? null : (int) $linha['id_carro'];
+            $chaveProduto = $idCarro !== null && $idCarro > 0
+                ? 'carro-' . $idCarro
+                : 'produto-' . $nomeProduto;
+            $avaliacoes[$idAvaliacao]['produtos'][$chaveProduto] = $nomeProduto;
+
+            if ($idCarro !== null && $idCarro > 0) {
+                $avaliacoes[$idAvaliacao]['veiculos'][$idCarro] = [
+                    'id_carro' => $idCarro,
+                    'nome' => $nomeProduto,
+                ];
+            }
+        }
+
+        foreach ($avaliacoes as &$avaliacao) {
+            $avaliacao['produtos'] = implode(', ', array_values($avaliacao['produtos']));
+            $avaliacao['veiculos'] = array_values($avaliacao['veiculos']);
+        }
+        unset($avaliacao);
+
+        return array_values($avaliacoes);
     }
 
     public function buscarPedidoConfirmado(int $idPedido, int $idUsuario): ?array

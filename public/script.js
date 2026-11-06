@@ -167,6 +167,10 @@ function filterSampleVehicles() {
 function createVehicleCard(vehicle) {
     const card = document.createElement("article");
     card.className = "vehicle-card";
+    const idCarro = Number(vehicle.id_carro);
+    if (Number.isSafeInteger(idCarro) && idCarro > 0) {
+        card.id = `vehicle-${idCarro}`;
+    }
 
     const image = document.createElement("div");
     image.className = "vehicle-image";
@@ -299,6 +303,19 @@ function createVehicleCard(vehicle) {
     return card;
 }
 
+function scrollToRequestedVehicle() {
+    const match = window.location.hash.match(/^#vehicle-(\d+)$/);
+    if (!match) {
+        return;
+    }
+
+    const vehicleCard = document.getElementById(`vehicle-${match[1]}`);
+    if (vehicleCard) {
+        vehicleCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        vehicleCard.classList.add("vehicle-card-target");
+    }
+}
+
 async function loadVehicles() {
     const sampleCatalog = filterSampleVehicles();
     vehicleGrid.replaceChildren(...sampleCatalog.map(createVehicleCard));
@@ -329,10 +346,12 @@ async function loadVehicles() {
         vehicleStatus.textContent = veiculos.length
             ? `${veiculos.length} veículo(s) encontrado(s).`
             : "Nenhum veículo encontrado para esses filtros.";
+        scrollToRequestedVehicle();
     } catch (error) {
         const vehicles = filterSampleVehicles();
         vehicleGrid.replaceChildren(...vehicles.map(createVehicleCard));
         vehicleStatus.textContent = `Não foi possível consultar o banco de dados. Exibindo catálogo de demonstração: ${vehicles.length} veículo(s).`;
+        scrollToRequestedVehicle();
     } finally {
         clearTimeout(timeoutId);
     }
