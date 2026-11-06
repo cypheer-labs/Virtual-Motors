@@ -107,7 +107,7 @@ $headerPaginaAvaliacoes = true;
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Leia e compartilhe avaliações de clientes da Virtual Motors.">
     <title>Avaliações - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
+    <link rel="stylesheet" href="../public/style.css?v=review-product-link">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body>
@@ -224,9 +224,22 @@ $headerPaginaAvaliacoes = true;
                             </time>
                         </p>
                         <p><?= nl2br(htmlspecialchars($avaliacao['descricao'], ENT_QUOTES, 'UTF-8')) ?></p>
-                        <time class="review-date" datetime="<?= htmlspecialchars(date(DATE_ATOM, strtotime($avaliacao['criado_em'])), ENT_QUOTES, 'UTF-8') ?>">
-                            Avaliado em <?= htmlspecialchars(date('d/m/Y', strtotime($avaliacao['criado_em'])), ENT_QUOTES, 'UTF-8') ?>
-                        </time>
+                        <div class="review-item-footer">
+                            <time class="review-date" datetime="<?= htmlspecialchars(date(DATE_ATOM, strtotime($avaliacao['criado_em'])), ENT_QUOTES, 'UTF-8') ?>">
+                                Avaliado em <?= htmlspecialchars(date('d/m/Y', strtotime($avaliacao['criado_em'])), ENT_QUOTES, 'UTF-8') ?>
+                            </time>
+                            <?php if ($avaliacao['veiculos'] !== []) : ?>
+                                <div class="review-product-actions">
+                                    <?php foreach ($avaliacao['veiculos'] as $veiculo) : ?>
+                                        <a
+                                            class="button button-outline review-product-link"
+                                            href="../index.php#vehicle-<?= (int) $veiculo['id_carro'] ?>"
+                                            aria-label="Ir ao produto <?= htmlspecialchars($veiculo['nome'], ENT_QUOTES, 'UTF-8') ?>"
+                                        >Ir ao produto</a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             <?php endif; ?>
