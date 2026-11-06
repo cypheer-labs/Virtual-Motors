@@ -106,12 +106,13 @@ if (!$modoVisualizacao && !$erroBanco && !$estoqueInsuficiente && $veiculos !== 
 <!DOCTYPE html>
 <html lang="pt-BR"<?= $temaVisualizacao !== null ? ' data-theme="' . htmlspecialchars($temaVisualizacao, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
 <head>
+    <?php require __DIR__ . '/gtm.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Confira seu pedido Virtual Motors e preencha os dados de entrega.">
     <title>Pagamento - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body<?= $modoVisualizacao ? ' class="checkout-preview"' : '' ?>>

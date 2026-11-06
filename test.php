@@ -234,6 +234,7 @@ if (isset($_GET['token'])) {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <?php require __DIR__ . '/src/gtm.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Teste isolado de verificação de e-mail - Virtual Motors</title>

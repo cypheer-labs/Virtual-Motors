@@ -93,12 +93,13 @@ $headerPaginaCompras = true;
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <?php require __DIR__ . '/gtm.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="Consulte seus pedidos e detalhes de compra na Virtual Motors.">
     <title>Minhas compras - Virtual Motors</title>
-    <link rel="stylesheet" href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css?v=profile-header-layout">
     <link rel="icon" href="../assets/vm.png" type="image/png">
 </head>
 <body>
