@@ -87,6 +87,7 @@ $headerCarrinhoHref = $headerPaginaInicial || $headerPaginaSobreNos
 $headerLogin = $headerBasePath . 'src/login.php';
 $headerCadastro = $headerBasePath . 'src/cadastro.php';
 $headerPerfil = $headerBasePath . 'src/perfil.php';
+$headerConta = $headerBasePath . 'src/minha-conta.php';
 $headerLogout = $headerBasePath . 'src/logout.php';
 $headerCompras = $headerBasePath . 'src/minhas-compras.php';
 $headerAvaliacoes = $headerBasePath . 'src/avaliacao.php';
@@ -129,6 +130,7 @@ $headerAvaliacoes = $headerBasePath . 'src/avaliacao.php';
                     </summary>
                     <div class="user-menu-dropdown">
                         <a href="<?= htmlspecialchars($headerPerfil, ENT_QUOTES, 'UTF-8') ?>">Meu perfil</a>
+                        <a href="<?= htmlspecialchars($headerConta, ENT_QUOTES, 'UTF-8') ?>">Minha conta</a>
                         <a
                             href="<?= htmlspecialchars($headerCompras, ENT_QUOTES, 'UTF-8') ?>"
                             <?= !empty($headerPaginaCompras) ? 'aria-current="page"' : '' ?>
