@@ -37,6 +37,8 @@ TestResults.xml
 /email-test.config.php
 /vendor/
 /var/email-test/
+/public/uploads/perfis/*
+!/public/uploads/perfis/.gitkeep
 
 composer.phar
 # Variáveis e segredos de ambiente (mantenha exemplos versionados)

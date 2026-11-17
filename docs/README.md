@@ -29,6 +29,7 @@ O sistema tem finalidade educacional e não processa pagamentos reais.
 - Protótipo inicial e identidade visual.
 - Banco de dados MySQL e dumps SQL.
 - Conexão entre PHP e MySQL.
+- Mapa de arquivos e fluxos da aplicação: [estrutura e integração](mapa-arquivos-e-integracao.md).
 - Busca e listagem de veículos.
 - Avaliações de compras confirmadas e médias nos cards dos veículos.
 - Cálculo de parcelas com base no valor do veículo.
@@ -164,21 +165,24 @@ A branch principal deve conter a versão integrada e revisada do projeto. Os nom
    ```
 
 3. Crie o banco de dados `loja_carros`.
-4. Importe o dump SQL `dump/virtualmotors/loja_carros_carros.sql`.
-5. Após importar o dump, verifique se as migrations abaixo já foram aplicadas ao banco. Elas são necessárias para os recursos atuais e devem ser executadas somente uma vez:
+4. Importe os dumps base nesta ordem: `loja_carros_carros.sql`,
+   `loja_carros_usuario.sql`, `loja_carros_pedido.sql` e
+   `loja_carros_item_pedido.sql`, todos em `dump/virtualmotors/`.
+   O dump de `carros` já contém `imagem_url`; não aplique
+   `20261015_add_car_image_url.sql` depois dele.
+5. Aplique uma vez as migrations manuais necessárias:
 
-   - `database/migrations/20261015_add_car_image_url.sql`
-   - `database/migrations/20261022_add_purchase_history.sql`
-   - `database/migrations/20261029_create_avaliacao.sql`
-   - `database/migrations/20261101_convert_cars_to_innodb.sql`
-   - `database/migrations/20261102_add_account_uid_and_persistent_cart.sql`
-   - `database/migrations/20261102_add_auth_session_version.sql`
-   - `database/migrations/20261103_add_profile_customization.sql`
-   - `database/migrations/20261103_add_profile_bio_and_box_color.sql`
-   - `database/migrations/20261105_remove_profile_box_color.sql`
-   - `database/migrations/20261105_create_avaliacao.sql`
-   - `database/migrations/20261105_add_product_stock.sql`
+   - `20261022_add_purchase_history.sql`
+   - **uma, e somente uma**, entre `20261029_create_avaliacao.sql` e
+     `20261105_create_avaliacao.sql`; ambas criam a mesma tabela
+   - `20261101_convert_cars_to_innodb.sql`
+   - `20261103_add_profile_bio_and_box_color.sql`
+   - `20261103_add_profile_customization.sql`
+   - `20261105_remove_profile_box_color.sql`
 
+   A primeira conexão da aplicação aplica automaticamente as migrations de UID
+   e carrinho persistente, versão de sessão e estoque. Elas não precisam ser
+   executadas manualmente.
 6. Copie `config/database.config.php.example` para `config/database.config.php`.
 7. Preencha as credenciais do banco de dados local. O arquivo real contém configurações privadas e não deve ser versionado.
 8. Na raiz do projeto, inicie o servidor PHP:

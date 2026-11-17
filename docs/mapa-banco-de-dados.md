@@ -15,10 +15,15 @@ as migrations alteram um banco que já existe.
 | [`dump/dump_server/if0_43124603_loja_carros.sql`](../dump/dump_server/if0_43124603_loja_carros.sql) | Snapshot completo antigo do banco de produção, com as quatro tabelas e dados existentes naquele momento. | Apenas para recuperação/importação intencional desse snapshot; não importar junto com os quatro arquivos acima. |
 | [`database/migrations/20261015_add_car_image_url.sql`](../database/migrations/20261015_add_car_image_url.sql) | Adiciona `carros.imagem_url`. | Em um banco antigo cuja tabela `carros` ainda não tenha essa coluna. |
 | [`database/migrations/20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql) | Habilita transações em `pedido`/`item_pedido` e adiciona data, endereço, quantidade e cópia dos dados do veículo no pedido. | Em um banco com as tabelas de pedido já criadas, antes de usar o histórico/checkout atual. |
+| [`database/migrations/20261029_create_avaliacao.sql`](../database/migrations/20261029_create_avaliacao.sql) | Cria a tabela `avaliacao` ligada a `pedido` e `usuario`. | Use este ou o script de 05/11, mas não ambos. |
 | [`database/migrations/20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql) | Converte `carros` para InnoDB, necessário para que os itens do pedido respeitem a chave estrangeira. | Após a migration de histórico, em bancos nos quais `carros` ainda usa MyISAM. |
 | [`database/migrations/20261102_add_account_uid_and_persistent_cart.sql`](../database/migrations/20261102_add_account_uid_and_persistent_cart.sql) | Adiciona um UID numérico exclusivo de oito ou mais dígitos às contas e cria o carrinho persistente por usuário e veículo. | Após as migrations anteriores, antes de usar cadastro, login, carrinho ou checkout atualizados. |
 | [`database/migrations/20261102_add_auth_session_version.sql`](../database/migrations/20261102_add_auth_session_version.sql) | Adiciona a versão de autenticação usada para invalidar sessões quando a senha é redefinida. | Aplicada automaticamente junto às migrations de conta na primeira conexão ao banco. |
+| [`database/migrations/20261103_add_profile_bio_and_box_color.sql`](../database/migrations/20261103_add_profile_bio_and_box_color.sql) | Adiciona a bio e uma coluna de cor de fundo posteriormente removida. | Aplicar antes da migration de remoção da cor. |
+| [`database/migrations/20261103_add_profile_customization.sql`](../database/migrations/20261103_add_profile_customization.sql) | Adiciona foto, banner e cor do nome do perfil. | Aplicar uma vez para habilitar a personalização do perfil. |
 | [`database/migrations/20261105_add_product_stock.sql`](../database/migrations/20261105_add_product_stock.sql) | Adiciona `carros.estoque`, inteiro não negativo com valor inicial zero. | Aplicada automaticamente na primeira conexão; o administrador informa manualmente as quantidades disponíveis. |
+| [`database/migrations/20261105_create_avaliacao.sql`](../database/migrations/20261105_create_avaliacao.sql) | Cria a mesma estrutura de `avaliacao` que o script de 29/10. | Alternativa ao script de 29/10; não execute ambos. |
+| [`database/migrations/20261105_remove_profile_box_color.sql`](../database/migrations/20261105_remove_profile_box_color.sql) | Remove a coluna de cor de fundo do perfil. | Aplicar depois de `20261103_add_profile_bio_and_box_color.sql`. |
 
 ### Ordem de instalação local
 
@@ -29,30 +34,37 @@ as migrations alteram um banco que já existe.
 3. **Não execute** `20261015_add_car_image_url.sql` depois do dump local de
    `carros`: essa coluna já está nele, e a migration tentaria criá-la de novo.
 4. Execute [`20261022_add_purchase_history.sql`](../database/migrations/20261022_add_purchase_history.sql)
-   uma vez se for usar o fluxo de
-   compras/histórico que existe no código.
-5. Execute [`20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql)
-   para habilitar a gravação dos itens de pedido em bancos que ainda usam MyISAM
-   na tabela `carros`.
-6. Configure a conexão em
+   uma vez para preparar o histórico de compras.
+5. Execute apenas um dos scripts de avaliação:
+   [`20261029_create_avaliacao.sql`](../database/migrations/20261029_create_avaliacao.sql)
+   ou
+   [`20261105_create_avaliacao.sql`](../database/migrations/20261105_create_avaliacao.sql).
+   Ambos criam a mesma tabela; executar os dois causa erro de tabela existente.
+6. Execute [`20261101_convert_cars_to_innodb.sql`](../database/migrations/20261101_convert_cars_to_innodb.sql)
+   para habilitar as chaves estrangeiras do carrinho em bancos nos quais
+   `carros` ainda usa MyISAM.
+7. Para personalização de perfil, execute
+   [`20261103_add_profile_bio_and_box_color.sql`](../database/migrations/20261103_add_profile_bio_and_box_color.sql),
+   [`20261103_add_profile_customization.sql`](../database/migrations/20261103_add_profile_customization.sql)
+   e, depois, [`20261105_remove_profile_box_color.sql`](../database/migrations/20261105_remove_profile_box_color.sql).
+8. Configure a conexão em
    [`config/database.config.php.example`](../config/database.config.php.example),
    copiando-o para `config/database.config.php` e preenchendo os valores locais.
-7. Execute [`20261102_add_account_uid_and_persistent_cart.sql`](../database/migrations/20261102_add_account_uid_and_persistent_cart.sql)
-   uma vez para adicionar os UIDs às contas existentes e habilitar a persistência
-   do carrinho. O carrinho combina os itens da sessão e os da conta no login;
-   os itens comprados são removidos do carrinho na mesma transação do pedido.
-8. A coluna `auth_version` é adicionada automaticamente pela aplicação. Quando
-   um administrador redefine uma senha, a versão é incrementada e as sessões
-   anteriores da conta são invalidadas no próximo acesso.
-9. A coluna `estoque` também é adicionada automaticamente na primeira conexão.
-   Produtos existentes começam com zero unidades; ajuste as quantidades em
-   `admin/produtos.php`. Os pedidos não alteram o estoque automaticamente.
+9. Na primeira conexão, `src/schemamigrationrunner.php` aplica automaticamente
+   UID/carrinho persistente, `auth_version` e `estoque`. O carrinho combina os
+   itens da sessão e da conta no login; os itens comprados são removidos na
+   mesma transação do pedido. A alteração de senha invalida sessões anteriores.
+10. A coluna `estoque` começa em zero para os veículos existentes; ajuste as
+   quantidades em `admin/produtos.php`. Os pedidos não alteram o estoque
+   automaticamente.
 
 Na hospedagem por FTP, depois do upload de `src/database.php` e
 `src/schemamigrationrunner.php`, essa migration é aplicada automaticamente na
 primeira conexão ao banco. O servidor deve ter `carros` em InnoDB e a conta do
 MySQL precisa ter permissões para criar tabela e alterar `usuario` e `carros`.
-As migrations são registradas em `vm_schema_migrations` e não são repetidas.
+As migrations gerenciadas pelo executor automático são registradas em
+`vm_schema_migrations` e não são repetidas. Scripts SQL executados manualmente
+não são registrados por esse executor.
 
 O snapshot `dump/dump_server/if0_43124603_loja_carros.sql` não é a base recomendada
 para uma instalação nova: ele representa o servidor em uma data anterior, usa
