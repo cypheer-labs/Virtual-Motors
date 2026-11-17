@@ -149,6 +149,7 @@ $bannerPerfil = is_string($perfil['banner_perfil'] ?? null) ? $perfil['banner_pe
             <?php if ($perfilDoUsuarioAtual) : ?>
                 <nav class="profile-page-actions" aria-label="Opções do perfil">
                     <a class="button button-primary" href="personalizar-perfil.php">Personalizar perfil</a>
+                    <a class="button button-outline" href="minha-conta.php">Minha conta</a>
                     <a class="button button-outline" href="minhas-compras.php">Minhas compras</a>
                 </nav>
             <?php endif; ?>

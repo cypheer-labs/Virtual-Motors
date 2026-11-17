@@ -43,6 +43,103 @@ class UserRepository
         return $perfil ?: null;
     }
 
+    public function findAccountById(int $id): ?array
+    {
+        $stmt = $this->connection->prepare(
+            'SELECT id_usuario AS id, uid, nome, email, telefone, endereco, tipo_usuario '
+            . 'FROM usuario WHERE id_usuario = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $conta = $stmt->fetch();
+
+        return $conta ?: null;
+    }
+
+    public function updatePersonalData(int $id, string $nome): bool
+    {
+        $stmt = $this->connection->prepare(
+            'UPDATE usuario SET nome = :nome WHERE id_usuario = :id'
+        );
+
+        return $stmt->execute(['nome' => $nome, 'id' => $id]);
+    }
+
+    public function updateContactData(int $id, string $email, ?string $telefone, ?string $endereco): bool
+    {
+        $stmt = $this->connection->prepare(
+            'UPDATE usuario SET email = :email, telefone = :telefone, endereco = :endereco '
+            . 'WHERE id_usuario = :id'
+        );
+
+        return $stmt->execute([
+            'email' => $email,
+            'telefone' => $telefone,
+            'endereco' => $endereco,
+            'id' => $id,
+        ]);
+    }
+
+    public function emailExistsForAnotherUser(string $email, int $idUsuario): bool
+    {
+        $stmt = $this->connection->prepare(
+            'SELECT 1 FROM usuario WHERE email = :email AND id_usuario <> :id_usuario LIMIT 1'
+        );
+        $stmt->execute(['email' => $email, 'id_usuario' => $idUsuario]);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    public function findPasswordHashById(int $id): ?string
+    {
+        $stmt = $this->connection->prepare(
+            'SELECT senha FROM usuario WHERE id_usuario = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $senhaHash = $stmt->fetchColumn();
+
+        return $senhaHash === false ? null : (string) $senhaHash;
+    }
+
+    public function updatePassword(int $id, string $senhaHashAtual, string $novaSenhaHash): ?int
+    {
+        $this->connection->beginTransaction();
+
+        try {
+            $stmt = $this->connection->prepare(
+                'UPDATE usuario SET senha = :nova_senha, auth_version = auth_version + 1 '
+                . 'WHERE id_usuario = :id AND senha = :senha_atual'
+            );
+            $stmt->execute([
+                'nova_senha' => $novaSenhaHash,
+                'id' => $id,
+                'senha_atual' => $senhaHashAtual,
+            ]);
+
+            if ($stmt->rowCount() !== 1) {
+                $this->connection->commit();
+                return null;
+            }
+
+            $consultaVersao = $this->connection->prepare(
+                'SELECT auth_version FROM usuario WHERE id_usuario = :id LIMIT 1'
+            );
+            $consultaVersao->execute(['id' => $id]);
+            $versao = $consultaVersao->fetchColumn();
+            if ($versao === false) {
+                throw new \RuntimeException('Não foi possível confirmar a versão atual da sessão.');
+            }
+
+            $this->connection->commit();
+
+            return (int) $versao;
+        } catch (\Throwable $erro) {
+            if ($this->connection->inTransaction()) {
+                $this->connection->rollBack();
+            }
+            throw $erro;
+        }
+    }
+
     public function updateProfile(
         int $id,
         string $nome,

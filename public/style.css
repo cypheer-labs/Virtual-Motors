@@ -1360,6 +1360,90 @@ select {
     width: 100%;
 }
 
+.account-page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.account-management {
+    display: grid;
+    gap: 18px;
+}
+
+.account-management-card {
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.account-management-card h2 {
+    margin-bottom: 18px;
+    font-size: 20px;
+}
+
+.account-data-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+}
+
+.account-data-list div {
+    min-width: 0;
+}
+
+.account-data-list dt {
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.account-data-list dd {
+    color: var(--text);
+    overflow-wrap: anywhere;
+}
+
+.account-purchases-link {
+    display: inline-flex;
+    margin-top: 18px;
+    color: var(--red);
+    font-weight: 700;
+}
+
+.account-card-description {
+    margin: -8px 0 18px;
+    color: var(--muted);
+}
+
+.account-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px 22px;
+}
+
+.account-form .profile-form-field input {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--field-bg);
+    color: var(--text);
+    font: inherit;
+}
+
+.account-form .profile-save-button {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+
+.account-form-field-wide {
+    grid-column: 1 / -1;
+}
+
 .profile-back-button {
     display: inline-flex;
     margin-top: 16px;
@@ -2619,6 +2703,22 @@ select {
 
     .profile-customization-form {
         grid-template-columns: 1fr;
+    }
+
+    .account-management-card {
+        padding: 20px 16px;
+    }
+
+    .account-form {
+        grid-template-columns: 1fr;
+    }
+
+    .account-form-field-wide {
+        grid-column: auto;
+    }
+
+    .account-form .profile-save-button {
+        width: 100%;
     }
 
     .profile-customization-heading {
